@@ -37,7 +37,7 @@ public class DecompileForm extends JDialog implements ClipboardOwner
     {
         try
         {
-            ClazzSourceView csv = ClazzSourceViewFactory.getClazzSourceView(clazz);
+            ClazzSourceView csv =  ClazzSourceViewFactory.getFileClazzSourceView(clazz);
             csv.setDecompileParameters(params);
             source = csv.getSource();
 

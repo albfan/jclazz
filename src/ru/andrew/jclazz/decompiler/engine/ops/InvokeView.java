@@ -27,10 +27,16 @@ public class InvokeView extends OperationView
     private int paramsAddition = 0;
     private boolean isICMethod = false;
     private String icMethodName;
+    private InputStreamBuilder builder;
 
-    public InvokeView(Operation operation, MethodSourceView methodView)
+    public InvokeView(Operation operation, MethodSourceView methodView) {
+        this(operation, methodView, new FileInputStreamBuilder());
+    }
+
+    public InvokeView(Operation operation, MethodSourceView methodView, InputStreamBuilder builder)
     {
         super(operation, methodView);
+        this.builder = builder;
         pushedParams = new ArrayList();
 
         if (getOpcode() == 184)  // invokestatic
@@ -436,7 +442,8 @@ public class InvokeView extends OperationView
                 Clazz innerClazz;
                 try
                 {
-                    innerClazz = new Clazz(path + inname + ".class");
+                    String innerClassName = path + inname + ".class";
+                    innerClazz = new Clazz(innerClassName, builder.getInputStream(innerClassName));
                 }
                 catch (Exception e)
                 {

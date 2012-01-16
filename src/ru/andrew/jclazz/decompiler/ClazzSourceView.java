@@ -12,6 +12,7 @@ public class ClazzSourceView extends SourceView
     public static boolean SUPPRESS_EXCESSED_THIS = true;
 
     protected Clazz clazz;
+    private InputStreamBuilder builder;
     protected boolean isInnerClass = false;
     protected ClazzSourceView outerClazz;
 
@@ -20,11 +21,16 @@ public class ClazzSourceView extends SourceView
 
     protected boolean printAsAnonymous = false;
 
-    public ClazzSourceView(Clazz clazz, ClazzSourceView outerClazz)
+    public ClazzSourceView(Clazz clazz, ClazzSourceView outerClazz) {
+        this(clazz, outerClazz, new FileInputStreamBuilder());
+    }
+
+    public ClazzSourceView(Clazz clazz, ClazzSourceView outerClazz, InputStreamBuilder builder)
     {
         super();
 
         this.clazz = clazz;
+        this.builder = builder;
         if (outerClazz != null)
         {
             isInnerClass = true;
@@ -152,7 +158,7 @@ public class ClazzSourceView extends SourceView
                 if (innerClassViews[i].getInnerFQN() == null) continue;
                 if (innerClassViews[i].getClazzView() != null &&
                     innerClassViews[i].getClazzView() instanceof AnonymousClazzSourceView) continue;
-                
+
                 pw.flush();
 
                 if (!innerClassViews[i].getInnerFQN().startsWith(getClazz().getThisClassInfo().getFullyQualifiedName()))
@@ -169,7 +175,8 @@ public class ClazzSourceView extends SourceView
                 Clazz innerClazz;
                 try
                 {
-                    innerClazz = new Clazz(path + inname + ".class");
+                    String innerClassName = path + inname + ".class";
+                    innerClazz = new Clazz(innerClassName, builder.getInputStream(innerClassName));
                 }
                 catch (Exception e)
                 {
@@ -217,7 +224,7 @@ public class ClazzSourceView extends SourceView
 
     protected MethodSourceView createMethodView(MethodInfo method)
     {
-        MethodSourceView msv = new MethodSourceView(method, this);
+        MethodSourceView msv = new MethodSourceView(method, this, builder);
         msv.setIndent("    ");
         return msv;
     }

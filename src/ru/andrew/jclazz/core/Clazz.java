@@ -11,8 +11,7 @@ import java.io.*;
 /**
  * This is representation of Java class. Last updated according to Java5 ClassFileFormat.
  */
-public class Clazz
-{
+public class Clazz {
     private String fileName;
 
     public static final int ACC_PUBLIC = 1;
@@ -25,7 +24,7 @@ public class Clazz
     public static final int ACC_ABSTRACT = 1024;
     public static final int ACC_SYNTHETIC = 4096;
     public static final int ACC_ANNOTATION = 8192;
-    public static final int ACC_ENUM = 16384;       
+    public static final int ACC_ENUM = 16384;
 
     private static final long MAGIC_NUMBER = 0xCAFEBABEL;
     private int minor_version;
@@ -45,15 +44,17 @@ public class Clazz
     private ClassSignature classSignature;
     private InnerClass[] innerClasses;
 
-    public Clazz(String inputFileName) throws ClazzException, IOException
-    {
+    public Clazz(String filename) throws ClazzException, IOException {
+        this(filename, new FileInputStream(filename));
+    }
+
+    public Clazz(String inputFileName, InputStream inputStream) throws IOException, ClazzException {
         this.fileName = inputFileName.endsWith(".class") ? inputFileName : inputFileName + ".class";
 
-        ClazzInputStream cis = new ClazzInputStream(fileName);
+        ClazzInputStream cis = new ClazzInputStream(inputStream);
 
         long magic = cis.readU4();
-        if (magic != MAGIC_NUMBER)
-        {
+        if (magic != MAGIC_NUMBER) {
             throw new ClazzException("Magic number is wrong");
         }
 
@@ -73,8 +74,7 @@ public class Clazz
 
         int interfaces_count = cis.readU2();
         interfaces = new CONSTANT_Class[interfaces_count];
-        for (int i = 0; i < interfaces_count; i++)
-        {
+        for (int i = 0; i < interfaces_count; i++) {
             int index = cis.readU2();
             interfaces[i] = (CONSTANT_Class) constant_pool[index];
         }
@@ -89,43 +89,27 @@ public class Clazz
 
         int attributes_count = cis.readU2();
         attributes = loadAttributes(cis, attributes_count);
-        for (int i = 0; i < attributes_count; i++)
-        {
-            if (attributes[i] instanceof Deprecated)
-            {
+        for (int i = 0; i < attributes_count; i++) {
+            if (attributes[i] instanceof Deprecated) {
                 isDeprecated = true;
-            }
-            else if (attributes[i] instanceof Synthetic)
-            {
+            } else if (attributes[i] instanceof Synthetic) {
                 isSynthetic = true;
-            }
-            else if (attributes[i] instanceof Signature)
-            {
+            } else if (attributes[i] instanceof Signature) {
                 classSignature = new ClassSignature(((Signature) attributes[i]).getSignature());
-            }
-            else if (attributes[i] instanceof EnclosingMethod)
-            {
+            } else if (attributes[i] instanceof EnclosingMethod) {
                 //TODO
-            }
-            else if (attributes[i] instanceof SourceFile)
-            {
+            } else if (attributes[i] instanceof SourceFile) {
                 sourceFile = ((SourceFile) attributes[i]).getSourceFile();
-            }
-            else if (attributes[i] instanceof InnerClasses) 
-            {
+            } else if (attributes[i] instanceof InnerClasses) {
                 innerClasses = ((InnerClasses) attributes[i]).getInnerClasses();
 
                 // Actualizing access flags for inner classes
-                for (int k = 0; k < innerClasses.length; k++)
-                {
-                    if (getThisClassInfo().getFullyQualifiedName().equals(innerClasses[k].getInnerClass().getFullyQualifiedName()))
-                    {
+                for (int k = 0; k < innerClasses.length; k++) {
+                    if (getThisClassInfo().getFullyQualifiedName().equals(innerClasses[k].getInnerClass().getFullyQualifiedName())) {
                         access_flags = innerClasses[k].getInnerClassAccessFlags();
                     }
                 }
-            }
-            else
-            {
+            } else {
                 // TODO
                 System.out.println("Clazz: unknown class attribute: " + attributes[i].getClass() + " - " + attributes[i].toString());
             }
@@ -134,29 +118,23 @@ public class Clazz
         cis.close();
     }
 
-    private void loadFields(ClazzInputStream cis) throws ClazzException, IOException
-    {
-        for (int i = 0; i < fields.length; i++)
-        {
+    private void loadFields(ClazzInputStream cis) throws ClazzException, IOException {
+        for (int i = 0; i < fields.length; i++) {
             fields[i] = new FieldInfo();
             fields[i].load(cis, this);
         }
     }
 
-    private void loadMethods(ClazzInputStream cis) throws ClazzException, IOException
-    {
-        for (int i = 0; i < methods.length; i++)
-        {
+    private void loadMethods(ClazzInputStream cis) throws ClazzException, IOException {
+        for (int i = 0; i < methods.length; i++) {
             methods[i] = new MethodInfo();
             methods[i].load(cis, this);
         }
     }
 
-    private AttributeInfo[] loadAttributes(ClazzInputStream cis, int attributes_count) throws ClazzException, IOException
-    {
+    private AttributeInfo[] loadAttributes(ClazzInputStream cis, int attributes_count) throws ClazzException, IOException {
         AttributeInfo[] attributes = new AttributeInfo[attributes_count];
-        for (int i = 0; i < attributes_count; i++)
-        {
+        for (int i = 0; i < attributes_count; i++) {
             attributes[i] = AttributesLoader.loadAttribute(cis, this, null);
         }
         return attributes;
@@ -169,149 +147,116 @@ public class Clazz
         cos.writeU4(MAGIC_NUMBER);
         cos.writeU2(minor_version);
         cos.writeU2(major_version);
-        for (int i = 0; i < constant_pool.length; i++)
-        {
+        for (int i = 0; i < constant_pool.length; i++) {
             if (constant_pool[i] != null) constant_pool[i].store(cos);
         }
         cos.writeU2(access_flags);
 
         cos.writeU2(this_class.getIndex());
-        if (super_class != null)
-        {
+        if (super_class != null) {
             cos.writeU2(super_class.getIndex());
-        }
-        else
-        {
+        } else {
             cos.writeU2(0);
         }
 
-        for (int i = 0; i > interfaces.length; i++)
-        {
+        for (int i = 0; i > interfaces.length; i++) {
             cos.writeU2(interfaces[i].getIndex());
         }
 
-        for (int i = 0; i > fields.length; i++)
-        {
+        for (int i = 0; i > fields.length; i++) {
             fields[i].store(cos);
         }
-        for (int i = 0; i > methods.length; i++)
-        {
+        for (int i = 0; i > methods.length; i++) {
             methods[i].store(cos);
         }
-        for (int i = 0; i > attributes.length; i++)
-        {
+        for (int i = 0; i > attributes.length; i++) {
             attributes[i].store(cos);
         }
 
         cos.close();
     }
 
-    public String getFileName()
-    {
+    public String getFileName() {
         return fileName;
     }
 
-    public int getAccessFlags()
-    {
+    public int getAccessFlags() {
         return access_flags;
     }
 
-    public String getSourceFile()
-    {
+    public String getSourceFile() {
         return sourceFile;
     }
 
-    public int getMinorVersion()
-    {
+    public int getMinorVersion() {
         return minor_version;
     }
 
-    public int getMajorVersion()
-    {
+    public int getMajorVersion() {
         return major_version;
     }
 
-    public String getVersion()
-    {
+    public String getVersion() {
         return major_version + "." + minor_version;
     }
 
-    public AttributeInfo[] getAttributes()
-    {
+    public AttributeInfo[] getAttributes() {
         return attributes;
     }
 
-    public CONSTANT_Class getThisClassInfo()
-    {
+    public CONSTANT_Class getThisClassInfo() {
         return this_class;
     }
 
-    public CONSTANT_Class getSuperClassInfo()
-    {
+    public CONSTANT_Class getSuperClassInfo() {
         return super_class;
     }
 
-    public CONSTANT[] getConstant_pool()
-    {
+    public CONSTANT[] getConstant_pool() {
         return constant_pool;
     }
 
-    public boolean isDeprecated()
-    {
+    public boolean isDeprecated() {
         return isDeprecated;
     }
 
-    public CONSTANT_Class[] getInterfaces()
-    {
+    public CONSTANT_Class[] getInterfaces() {
         return interfaces;
     }
 
-    public FieldInfo[] getFields()
-    {
+    public FieldInfo[] getFields() {
         return fields;
     }
 
-    public MethodInfo[] getMethods()
-    {
+    public MethodInfo[] getMethods() {
         return methods;
     }
 
-    public ClassSignature getClassSignature()
-    {
+    public ClassSignature getClassSignature() {
         return classSignature;
     }
 
-    public InnerClass[] getInnerClasses()
-    {
+    public InnerClass[] getInnerClasses() {
         return innerClasses;
     }
 
     // TODO remove?
-    public InnerClass getInnerClass(String fqn)
-    {
-        for (int i = 0; i < innerClasses.length; i++)
-        {
+    public InnerClass getInnerClass(String fqn) {
+        for (int i = 0; i < innerClasses.length; i++) {
             if (innerClasses[i].getInnerClass() == null) continue;
-            if (fqn.equals(innerClasses[i].getInnerClass().getFullyQualifiedName()))
-            {
+            if (fqn.equals(innerClasses[i].getInnerClass().getFullyQualifiedName())) {
                 return innerClasses[i];
             }
         }
         return null;
     }
 
-    public String getJVMSupportedVersion()
-    {
-        if (major_version == 45 && minor_version >= 0 && minor_version <= 3)
-        {
+    public String getJVMSupportedVersion() {
+        if (major_version == 45 && minor_version >= 0 && minor_version <= 3) {
             return "1.0.2 and greater";
-        }
-        else if (major_version == 45 && minor_version > 3 && minor_version <= 65535)
-        {
+        } else if (major_version == 45 && minor_version > 3 && minor_version <= 65535) {
             return "1.1.X and greater";
-        }
-        else
-        {
+        } else {
             int mv = major_version - 44;
             if (minor_version > 0) mv++;
             return "1." + mv + " and greater";
@@ -320,48 +265,39 @@ public class Clazz
 
     // Access checks
 
-    public boolean isPublic()
-    {
+    public boolean isPublic() {
         return (access_flags & ACC_PUBLIC) > 0;
     }
 
-    public boolean isFinal()
-    {
+    public boolean isFinal() {
         return (access_flags & ACC_FINAL) > 0;
     }
 
-    public boolean isSuper()
-    {
+    public boolean isSuper() {
         return (access_flags & ACC_SUPER) > 0;
     }
 
-    public boolean isInterface()
-    {
+    public boolean isInterface() {
         return (access_flags & ACC_INTERFACE) > 0;
     }
 
-    public boolean isAbstract()
-    {
+    public boolean isAbstract() {
         return (access_flags & ACC_ABSTRACT) > 0;
     }
 
-    public boolean isSynthetic()
-    {
+    public boolean isSynthetic() {
         return (access_flags & ACC_SYNTHETIC) > 0 || isSynthetic;
     }
 
-    public boolean isStatic()
-    {
+    public boolean isStatic() {
         return (access_flags & ACC_STATIC) > 0;
     }
 
-    public boolean isEnumeration()
-    {
+    public boolean isEnumeration() {
         return (access_flags & ACC_ENUM) > 0;
     }
 
-    public boolean isAnnotation()
-    {
+    public boolean isAnnotation() {
         return (access_flags & ACC_ANNOTATION) > 0;
     }
 }

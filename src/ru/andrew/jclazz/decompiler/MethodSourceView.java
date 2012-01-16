@@ -16,13 +16,19 @@ public class MethodSourceView extends SourceView
 
     protected MethodInfo methodInfo;
     protected ClazzSourceView clazzView;
+    private InputStreamBuilder builder;
     protected Block topBlock;
     protected MethodContext context;
 
-    public MethodSourceView(MethodInfo methodInfo, ClazzSourceView clazzView)
+    public MethodSourceView(MethodInfo methodInfo, ClazzSourceView clazzView) {
+        this(methodInfo, clazzView, new FileInputStreamBuilder());
+    }
+
+    public MethodSourceView(MethodInfo methodInfo, ClazzSourceView clazzView, InputStreamBuilder builder)
     {
         this.methodInfo = methodInfo;
         this.clazzView = clazzView;
+        this.builder = builder;
         this.context = new MethodContext(methodInfo);
 
         // InnerClass support
@@ -111,7 +117,7 @@ public class MethodSourceView extends SourceView
 
         if (methodInfo.getCodeBlock() != null)
         {
-            topBlock = ByteCodeConverter.convertToViewOperations(methodInfo.getCodeBlock().getOperations(), this);
+            topBlock = new ByteCodeConverter(builder).convertToViewOperations(methodInfo.getCodeBlock().getOperations(), this);
         }
         else
         {

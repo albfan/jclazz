@@ -10,7 +10,7 @@ public final class ClassDecompiler
     public static String generateJavaFile(String in, Map params) throws ClazzException, IOException
     {
         Clazz clazz = new Clazz(in);
-        ClazzSourceView csv = ClazzSourceViewFactory.getClazzSourceView(clazz);
+        ClazzSourceView csv = ClazzSourceViewFactory.getFileClazzSourceView(clazz);
         csv.setDecompileParameters(params);
 
         String outFile;

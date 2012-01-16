@@ -8,10 +8,14 @@ import ru.andrew.jclazz.core.MethodInfo;
 import ru.andrew.jclazz.core.attributes.AttributeInfo;
 import ru.andrew.jclazz.core.attributes.InnerClass;
 import ru.andrew.jclazz.core.constants.CONSTANT_Class;
+import ru.andrew.jclazz.decompiler.FileInputStreamBuilder;
 import ru.andrew.jclazz.gui.ClazzTreeNode;
 
 public class ClazzNode extends ClazzTreeNode
 {
+
+    private final FileInputStreamBuilder builder;
+
     public ClazzNode(Clazz clazz)
     {
         super(clazz.getThisClassInfo().getName(), clazz, "");
@@ -57,6 +61,7 @@ public class ClazzNode extends ClazzTreeNode
         description = sb.toString();
 
         loadTree(clazz);
+        builder = new FileInputStreamBuilder();
     }
 
     private void loadTree(Clazz clazz)
@@ -103,7 +108,8 @@ public class ClazzNode extends ClazzTreeNode
                 Clazz innerClazz;
                 try
                 {
-                    innerClazz = new Clazz(path + inname + ".class");
+                    String innerClassName = path + inname + ".class";
+                    innerClazz = new Clazz(innerClassName, builder.getInputStream(innerClassName));
                     add(createClazzNode(innerClazz));
                 }
                 catch (ClazzException ex)

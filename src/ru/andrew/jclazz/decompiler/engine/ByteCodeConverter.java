@@ -1,15 +1,33 @@
 package ru.andrew.jclazz.decompiler.engine;
 
-import java.lang.reflect.Constructor;
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.FileInputStreamBuilder;
+import ru.andrew.jclazz.decompiler.InputStreamBuilder;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
 import ru.andrew.jclazz.decompiler.engine.blockdetectors.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
+import ru.andrew.jclazz.decompiler.engine.blocks.Loop;
+import ru.andrew.jclazz.decompiler.engine.ops.InvokeView;
 
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class ByteCodeConverter
 {
+    private InputStreamBuilder builder;
+
+    public ByteCodeConverter() {
+        this(new FileInputStreamBuilder());
+    }
+
+    public ByteCodeConverter(InputStreamBuilder builder)
+    {
+        this.builder = builder;
+    }
+
     public static Block detectBlocks(Block topBlock, MethodSourceView msv)
     {
         detectBlocks(topBlock, new TryDetector(msv.getMethod().getCodeBlock().getExceptionTable()));
@@ -31,8 +49,8 @@ public class ByteCodeConverter
         return topBlock;
     }
 
-    private static HashMap op2constructor = new HashMap();
-    public static Block convertToViewOperations(List operations, MethodSourceView msv)
+    private HashMap op2constructor = new HashMap();
+    public Block convertToViewOperations(List operations, MethodSourceView msv)
     {
         ArrayList list = new ArrayList(operations.size());
         for (Iterator i = operations.iterator(); i.hasNext();)
@@ -40,25 +58,32 @@ public class ByteCodeConverter
             Operation op = (Operation) i.next();
             String className = op.getClass().getName();
             Constructor constructor = (Constructor) op2constructor.get(className);
+            CodeItem codeItem;
             if (constructor == null)
             {
                 String shortClassName = className.substring(className.lastIndexOf('.') + 1);
-                String newName = "ru.andrew.jclazz.decompiler.engine.ops." + shortClassName + "View";
-                try
-                {
-                    constructor = Class.forName(newName).getConstructor(new Class[]{Operation.class, MethodSourceView.class});
-                    op2constructor.put(className, constructor);
-                }
-                catch (ClassNotFoundException e)
-                {
-                    throw new RuntimeException(e);
-                }
-                catch (NoSuchMethodException e)
-                {
-                    throw new RuntimeException(e);
+                if (shortClassName.equals("Invoke")) {
+                    codeItem = new InvokeView(op, msv, builder);
+                    list.add(codeItem);
+                    continue;
+                } else {
+                    String newName = "ru.andrew.jclazz.decompiler.engine.ops." + shortClassName + "View";
+                    try
+                    {
+                        constructor = Class.forName(newName).getConstructor(new Class[]{Operation.class, MethodSourceView.class});
+                        op2constructor.put(className, constructor);
+                    }
+                    catch (ClassNotFoundException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                    catch (NoSuchMethodException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
-            CodeItem codeItem;
+
             try
             {
                 codeItem = (CodeItem) constructor.newInstance(new Object[]{op, msv});
