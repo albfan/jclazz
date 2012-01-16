@@ -1,5 +1,11 @@
 #!/bin/sh
 
-LIB="$(pwd)/$(dirname $0)/../../bin"
+export LIB_PATH=../../bin
+export JAVA="java"
 
-java -classpath $LIB/jclazz-core.jar:$LIB/jclazz-decomp.jar ru.andrew.jclazz.decompiler.ClassDecompiler $@
+if [ "$JAVA_HOME" != "" ]
+then
+    export JAVA="$JAVA_HOME/bin/java"
+fi
+
+$JAVA -classpath $LIB_PATH/jclazz-core.jar;$LIB_PATH/jclazz-decomp.jar ru.andrew.jclazz.decompiler.ClassDecompiler $@

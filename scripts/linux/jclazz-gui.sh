@@ -1,5 +1,10 @@
 #!/bin/sh
+export LIB_PATH=../../bin
+export JAVA="java"
 
-LIB="$(pwd)/$(dirname $0)/../../bin"
+if [ "$JAVA_HOME" != "" ]
+then
+    export JAVA="$JAVA_HOME/bin/java"
+fi
 
-java -jar $LIB/jclazz-gui.jar
+$JAVA -jar $LIB_PATH/jclazz-gui.jar
