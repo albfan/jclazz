@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+
+<project name="sga" default="all" basedir=".">
+
+    <property name="compilado" value="../out/production/Jclazz"/>
+    <property name="destino" value="../bin"/>
+
+    <target name="core">
+        <jar jarfile="${destino}/jclazz-core.jar" basedir="${compilado}"
+             includes="ru/andrew/jclazz/core/**" compress="true"/>
+    </target>
+
+    <target name="decompiler">
+        <jar jarfile="${destino}/jclazz-decomp.jar" basedir="${compilado}"
+             includes="ru/andrew/jclazz/decompiler/**" compress="true"/>
+    </target>
+
+    <target name="gui">
+        <jar jarfile="${destino}/jclazz-gui.jar" basedir="${compilado}"
+             includes="ru/andrew/jclazz/gui/**" compress="true"/>
+    </target>
+
+    <target name="all" depends="core,decompiler,gui">
+        <echo message="todo compilado"/>
+    </target>
+
+</project>
