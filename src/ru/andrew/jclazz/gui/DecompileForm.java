@@ -1,43 +1,49 @@
 package ru.andrew.jclazz.gui;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.decompiler.ClazzSourceView;
+import ru.andrew.jclazz.decompiler.ClazzSourceViewFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.io.*;
 import java.util.Map;
-import javax.swing.*;
-import ru.andrew.jclazz.core.Clazz;
-import ru.andrew.jclazz.decompiler.*;
 
-public class DecompileForm extends JDialog implements ClipboardOwner
-{
+public class DecompileForm extends JDialog implements ClipboardOwner {
     private Clazz clazz;
     private String source;
 
-    public DecompileForm()
-    {
+    private JMenuItem CtrlCMenuItem;
+    private JPanel decompilePanel;
+    private JMenu jMenu2;
+    private JMenuBar jMenuBar1;
+    private JScrollPane jScrollPane2;
+    private JMenuItem savaAsMenuItem;
+    private JTextPane sourcePane;
+
+
+    public DecompileForm() {
         initComponents();
 
         setContentPane(decompilePanel);
     }
 
-    public void lostOwnership(Clipboard clipboard, Transferable contents)
-    {
-        // Do nothing
-    }
+    public void lostOwnership(Clipboard clipboard, Transferable contents) { }
 
-    public void setClazz(Clazz clazz)
-    {
+    public void setClazz(Clazz clazz) {
         this.clazz = clazz;
         setTitle(clazz.getThisClassInfo().getFullyQualifiedName());
 
         decompile(null);
     }
 
-    private void decompile(Map params)
-    {
-        try
-        {
-            ClazzSourceView csv =  ClazzSourceViewFactory.getFileClazzSourceView(clazz);
+    private void decompile(Map params) {
+        try {
+            ClazzSourceView csv = ClazzSourceViewFactory.getFileClazzSourceView(clazz);
             csv.setDecompileParameters(params);
             source = csv.getSource();
 
@@ -49,9 +55,10 @@ public class DecompileForm extends JDialog implements ClipboardOwner
             sourceText = sourceText.replaceAll("\n", "<BR>");
             sourcePane.setText(sourceText);
             sourcePane.setCaretPosition(0);
-        }
-        catch (Throwable ex)
-        {
+        } catch (Throwable ex) {
+            if (Boolean.parseBoolean(System.getProperty("debug", "false"))) {
+                ex.printStackTrace();
+            }
             sourcePane.setText("Exception occured while decompiling");
 
             String link = "http://sourceforge.net/tracker/?group_id=226227&atid=1066690";
@@ -69,11 +76,9 @@ public class DecompileForm extends JDialog implements ClipboardOwner
         }
     }
 
-    private String unpackException(Throwable ex)
-    {
+    private String unpackException(Throwable ex) {
         PrintWriter pw = null;
-        try
-        {
+        try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             pw = new PrintWriter(new OutputStreamWriter(baos));
             ex.printStackTrace(pw);
@@ -81,66 +86,57 @@ public class DecompileForm extends JDialog implements ClipboardOwner
             String str = baos.toString();
             int ind = 0;
             int cnt = 0;
-            while (ind != -1 && cnt < 5)
-            {
+            while (ind != -1 && cnt < 5) {
                 ind = str.indexOf("\n", ind + 1);
                 cnt++;
             }
-            if (ind != -1)
-            {
+            if (ind != -1) {
                 str = str.substring(0, ind);
             }
             str = str.replaceAll("\n", "<BR>");
             return str;
-        }
-        finally
-        {
+        } finally {
             pw.close();
         }
     }
 
-    private void saveToFile()
-    {
+    private void saveToFile() {
         JFileChooser chooser = new JFileChooser();
         String saveName = clazz.getFileName();
         saveName = saveName.substring(0, saveName.lastIndexOf('.')) + ".java";
         chooser.setSelectedFile(new File(saveName));
 
         int returnVal = chooser.showSaveDialog(this);
-        if(returnVal != JFileChooser.APPROVE_OPTION)
-        {
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
             JOptionPane.showMessageDialog(this, "No file specified", "Try again...", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try
-        {
+        try {
             PrintWriter pw = new PrintWriter(new FileOutputStream(chooser.getSelectedFile()));
             pw.println(source);
             pw.close();
-        }
-        catch (IOException ioe)
-        {
+        } catch (IOException ioe) {
             JOptionPane.showMessageDialog(this, ioe.toString(), "Input/Output Exception", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
     }
 
-    /** This method is called from within the constructor to
+    /**
+     * This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        decompilePanel = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        sourcePane = new javax.swing.JTextPane();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu2 = new javax.swing.JMenu();
-        savaAsMenuItem = new javax.swing.JMenuItem();
-        CtrlCMenuItem = new javax.swing.JMenuItem();
+        decompilePanel = new JPanel();
+        jScrollPane2 = new JScrollPane();
+        sourcePane = new JTextPane();
+        jMenuBar1 = new JMenuBar();
+        jMenu2 = new JMenu();
+        savaAsMenuItem = new JMenuItem();
+        CtrlCMenuItem = new JMenuItem();
 
         setName("decompileFrame"); // NOI18N
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -171,7 +167,7 @@ public class DecompileForm extends JDialog implements ClipboardOwner
         savaAsMenuItem.setText("Save as...");
         savaAsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                savaAsMenuItemActionPerformed(evt);
+                saveAsMenuItemActionPerformed(evt);
             }
         });
         jMenu2.add(savaAsMenuItem);
@@ -189,26 +185,13 @@ public class DecompileForm extends JDialog implements ClipboardOwner
         setJMenuBar(jMenuBar1);
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
-    private void savaAsMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_savaAsMenuItemActionPerformed
-    {//GEN-HEADEREND:event_savaAsMenuItemActionPerformed
+    private void saveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         saveToFile();
-    }//GEN-LAST:event_savaAsMenuItemActionPerformed
+    }
 
-    private void CtrlCMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_CtrlCMenuItemActionPerformed
-    {//GEN-HEADEREND:event_CtrlCMenuItemActionPerformed
+    private void CtrlCMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(source), this);
-    }//GEN-LAST:event_CtrlCMenuItemActionPerformed
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuItem CtrlCMenuItem;
-    private javax.swing.JPanel decompilePanel;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JMenuItem savaAsMenuItem;
-    private javax.swing.JTextPane sourcePane;
-    // End of variables declaration//GEN-END:variables
-
+    }
 }
