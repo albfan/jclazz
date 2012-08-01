@@ -23,7 +23,7 @@ public class MethodContext
 
     public OperationView pop()
     {
-        return (OperationView) stack.pop();
+        return stack.isEmpty() ? null : (OperationView) stack.pop();
     }
 
     public OperationView peek()

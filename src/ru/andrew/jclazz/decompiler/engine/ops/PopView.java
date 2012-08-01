@@ -137,6 +137,9 @@ public class PopView extends OperationView
         else
         {
             OperationView pushOp = context.pop();
+            if (pushOp == null) {
+                return;
+            }
             if (getOpcode() >= 54 && getOpcode() <= 78)
             {
                 lvar = block.getLocalVariable(((Pop) operation).getLocalVariableNumber(), pushOp.getPushType(), (int) getStartByte());

@@ -149,7 +149,8 @@ public class Catch extends Block
         if (exceptionClassInfo != null)
         {
             sb.append("catch (").append(alias(exceptionClassInfo.getFullyQualifiedName())).append(" ").append(lv != null ? lv.getName() : "").append(")");
-            lv.setPrinted(true);
+            if (lv != null)
+                lv.setPrinted(true);
         }
         else
         {

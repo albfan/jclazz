@@ -48,14 +48,16 @@ public class EnumSourceView extends ClazzSourceView
 
                 pw.print(((PutFieldView) citem).getFieldName());
                 String src = ((PutFieldView) citem).source3();
-                int index = src.indexOf(',', src.indexOf(',') + 1);
-                if (index != -1)
-                {
-                    pw.print("(");
-                    src = src.substring(index + 1, src.lastIndexOf(')'));
-                    src = src.trim();
-                    pw.print(src);
-                    pw.print(")");
+                if (src != null) {
+                    int index = src.indexOf(',', src.indexOf(',') + 1);
+                    if (index != -1)
+                    {
+                        pw.print("(");
+                        src = src.substring(index + 1, src.lastIndexOf(')'));
+                        src = src.trim();
+                        pw.print(src);
+                        pw.print(")");
+                    }
                 }
                 isFirstVar = false;
             }

@@ -78,7 +78,8 @@ public class MonitorEnterView extends OperationView
         CodeItem catchBlock = block.next();
         if (!(catchBlock instanceof Catch))
         {
-            throw new OperationException("MonitorEnter: catch block is missing");
+            //TODO: Por ahora no lo detenemos
+            //throw new OperationException("MonitorEnter: catch block is missing");
         }
         block.removeCurrentOperation();
         block.back();
