@@ -9,7 +9,6 @@ import java.util.jar.JarFile;
  * User: alberto
  * Date: 16/01/12
  * Time: 3:58
- * To change this template use File | Settings | File Templates.
  */
 public class JarInputStreamBuilder implements InputStreamBuilder {
     private JarFile jarFile;
