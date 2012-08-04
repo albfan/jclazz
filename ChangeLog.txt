@@ -1,0 +1,7 @@
+Changes inputStream jclazz 1.2.2
+
+#1 Bug Fix: Save of decompiled file writes to predefined file name.
+
+#2 Bug Fix: Condition structures "condition ? operation1 : operation2" were decompiled incorrectly.
+
+#3 Bug Fix: URL to bug reporting page is corrected
