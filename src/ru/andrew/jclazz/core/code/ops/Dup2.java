@@ -7,32 +7,29 @@ import ru.andrew.jclazz.core.attributes.Code;
  * Parameters: no<BR>
  * Operand stack:<BR>
  * dup2: value2, value1 => value2, value1, value2, value1,
- *       if value1 and value2 - Category 1<BR>
- *       value => value, value,
- *       if value is Category 2<BR>
+ * if value1 and value2 - Category 1<BR>
+ * value => value, value,
+ * if value is Category 2<BR>
  * dup2_x1: value3, value2, value1  => value2, value1, value3, value2, value1,
- *          if all values - Category 1<BR>
- *          value2, value1 => value1, value2, value1,
- *          if value1 - Category 2 and value2 - Category 1<BR>
+ * if all values - Category 1<BR>
+ * value2, value1 => value1, value2, value1,
+ * if value1 - Category 2 and value2 - Category 1<BR>
  * dup2_x2: value4, value3, value2, value1 => value2, value1, value4, value3, value2, value1,
- *              if all values - Category 1<BR>
- *          value3, value2, value1 => value1, value3, value2, value1,
- *              if value1 - Category 2, value2 and value3 - Category 1<BR>
- *          value3, value2, value1 => value2, value1, value3, value2, value1,
- *              if value1 and value2 - Category 1, value3 - Category 2<BR>
- *          value2, value1 => value1, value2, value1,
- *              if all values are Category 2<BR>
+ * if all values - Category 1<BR>
+ * value3, value2, value1 => value1, value3, value2, value1,
+ * if value1 - Category 2, value2 and value3 - Category 1<BR>
+ * value3, value2, value1 => value2, value1, value3, value2, value1,
+ * if value1 and value2 - Category 1, value3 - Category 2<BR>
+ * value2, value1 => value1, value2, value1,
+ * if all values are Category 2<BR>
  */
-public class Dup2 extends PushOperation
-{
+public class Dup2 extends PushOperation {
     private int stackShift;
-    
-    public Dup2(int opcode, long start_byte, Code code)
-    {
+
+    public Dup2(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
-        switch (opcode)
-        {
+        switch (opcode) {
             case 92:
                 stackShift = 0;
                 break;
@@ -45,8 +42,7 @@ public class Dup2 extends PushOperation
         }
     }
 
-    public int getStackShift()
-    {
+    public int getStackShift() {
         return stackShift;
     }
 }

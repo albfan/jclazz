@@ -1,39 +1,32 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.Arithmetic;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class ArithmeticView extends OperationView
-{
+public class ArithmeticView extends OperationView {
     private String value1;
     private String value2;
     private String negValue;
 
-    public ArithmeticView(Operation operation, MethodSourceView methodView)
-    {
+    public ArithmeticView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String source()
-    {
-        if (negValue != null)
-        {
+    public String source() {
+        if (negValue != null) {
             return "-" + negValue;
-        }
-        else
-        {
+        } else {
             return value2 + " " + ((Arithmetic) operation).getOperation() + " " + value1;
         }
     }
 
-    public String getPushType()
-    {
-        return ((Arithmetic) operation).getResultType();  
+    public String getPushType() {
+        return ((Arithmetic) operation).getResultType();
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         int opcode = getOpcode();
         if (opcode >= 116 && opcode <= 119) // neg
@@ -50,18 +43,15 @@ public class ArithmeticView extends OperationView
         }
          * */
     }
-    
-    public void analyze2(Block block)
-    {
+
+    public void analyze2(Block block) {
         int opcode = getOpcode();
         if (opcode >= 116 && opcode <= 119) // neg
         {
             OperationView prev = context.pop();
             view = new Object[]{"-", prev};
             context.push(this);
-        }
-        else
-        {
+        } else {
             OperationView prev1 = context.pop();
             OperationView prev2 = context.pop();
             view = new Object[]{"(", prev2, " " + ((Arithmetic) operation).getOperation() + " ", prev1, ")"};
@@ -69,8 +59,7 @@ public class ArithmeticView extends OperationView
         }
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

@@ -1,47 +1,40 @@
 package ru.andrew.jclazz.decompiler.engine.blockdetectors;
 
-import java.util.List;
 import ru.andrew.jclazz.decompiler.engine.CodeItem;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
+import ru.andrew.jclazz.decompiler.engine.blocks.Catch;
+import ru.andrew.jclazz.decompiler.engine.blocks.Loop;
 import ru.andrew.jclazz.decompiler.engine.ops.GoToView;
 
-public class UnconditionalBackLoopDetector implements Detector
-{
-    public void analyze(Block block)
-    {
+import java.util.List;
+
+public class UnconditionalBackLoopDetector implements Detector {
+    public void analyze(Block block) {
         block.reset();
-        while (block.hasMoreOperations())
-        {
+        while (block.hasMoreOperations()) {
             CodeItem citem = block.next();
             if (!(citem instanceof GoToView)) continue;
 
             GoToView gt = (GoToView) citem;
             if (gt.isBreak() || gt.isContinue() || gt.getLoop() != null) continue;
-            if (!gt.isForwardBranch())
-            {
+            if (!gt.isForwardBranch()) {
                 //if (isLastGoToWithSameTarget(block, gt))
-                if (!isIfContinue(block, gt))
-                {
+                if (!isIfContinue(block, gt)) {
                     createBackLoop(block, gt);
-                }
-                else
-                {
+                } else {
                     gt.setContinue(true);
                 }
             }
         }
     }
 
-    private boolean isLastGoToWithSameTarget(Block block, GoToView gt)
-    {
+    private boolean isLastGoToWithSameTarget(Block block, GoToView gt) {
         List ops = block.getOperations();
-        for (int i = 0; i < ops.size(); i++)
-        {
+        for (int i = 0; i < ops.size(); i++) {
             CodeItem citem = (CodeItem) ops.get(i);
             if (!(citem instanceof GoToView) || citem.getStartByte() <= gt.getStartByte()) continue;
             GoToView gt2 = (GoToView) citem;
-            if (gt2.getTargetOperation() == gt.getTargetOperation())
-            {
+            if (gt2.getTargetOperation() == gt.getTargetOperation()) {
                 return false;
             }
         }
@@ -49,15 +42,12 @@ public class UnconditionalBackLoopDetector implements Detector
         return isLastGoToWithSameTarget(block.getParent(), gt);
     }
 
-    private boolean isIfContinue(Block block, GoToView priorTarget)
-    {
+    private boolean isIfContinue(Block block, GoToView priorTarget) {
         // priorTarget - backward goto, but this is not loop
         // Case: if - continue for while (...) {...} block
         Block loop = block;
-        while (loop != null)
-        {
-            if ((loop instanceof Loop) && (((Loop) loop).getBeginPc() == priorTarget.getTargetOperation()))
-            {
+        while (loop != null) {
+            if ((loop instanceof Loop) && (((Loop) loop).getBeginPc() == priorTarget.getTargetOperation())) {
                 // This is "if - continue" case
                 return true;
             }
@@ -67,28 +57,22 @@ public class UnconditionalBackLoopDetector implements Detector
         return false;
     }
 
-    private void createBackLoop(Block block, GoToView gotoView)
-    {
+    private void createBackLoop(Block block, GoToView gotoView) {
         // Searching for outermost block for loop
         Block parent = block;
         Block foundBlock;
         CodeItem target;
-        do
-        {
+        do {
             target = parent.getOperationByStartByte(gotoView.getTargetOperation());
             foundBlock = parent;
             parent = parent.getParent();
         }
         while (target == null && parent != null);
 
-        if (parent == null && target == null)
-        {
-            if (block instanceof Catch)
-            {
+        if (parent == null && target == null) {
+            if (block instanceof Catch) {
                 foundBlock = block.getParent();
-            }
-            else
-            {
+            } else {
                 foundBlock = block;
             }
         }

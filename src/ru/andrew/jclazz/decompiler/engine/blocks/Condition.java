@@ -1,14 +1,13 @@
 package ru.andrew.jclazz.decompiler.engine.blocks;
 
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.decompiler.OperationException;
+import ru.andrew.jclazz.decompiler.engine.CodeItem;
+import ru.andrew.jclazz.decompiler.engine.LocalVariable;
 import ru.andrew.jclazz.decompiler.engine.ops.*;
-import ru.andrew.jclazz.decompiler.engine.*;
 
 import java.util.*;
-import java.util.ArrayList;
 
-public class Condition extends Block
-{
+public class Condition extends Block {
     private IfView ifOp;
 
     private OperationView var1;
@@ -21,8 +20,7 @@ public class Condition extends Block
     private static final Map reversedOps;
     private static final Map negOps;
 
-    static
-    {
+    static {
         reversedOps = new HashMap(6);
         reversedOps.put("!=", "==");
         reversedOps.put("==", "!=");
@@ -40,23 +38,19 @@ public class Condition extends Block
         negOps.put(">", "<");
     }
 
-    public void setNeedReverseOperation(boolean needReverseOperation)
-    {
+    public void setNeedReverseOperation(boolean needReverseOperation) {
         this.needReverseOperation = needReverseOperation;
     }
 
-    public IfView getIfOperation()
-    {
+    public IfView getIfOperation() {
         return ifOp;
     }
 
-    public Condition(IfView ifOp, Block parent, List ops)
-    {
+    public Condition(IfView ifOp, Block parent, List ops) {
         super(parent, ops != null ? ops : new ArrayList());
         this.ifOp = ifOp;
 
-        switch (ifOp.getOpcode())
-        {
+        switch (ifOp.getOpcode()) {
             case 153:
                 operation = "==";
                 break;
@@ -110,21 +104,17 @@ public class Condition extends Block
         }
     }
 
-    public long getStartByte()
-    {
+    public long getStartByte() {
         return ifOp.getStartByte();
     }
 
-    public String getSource()
-    {
+    public String getSource() {
         return "";
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         reset();
-        while (hasMoreOperations())
-        {
+        while (hasMoreOperations()) {
             CodeItem citem = next();
             if (hasMoreOperations()) citem.analyze2(this);    // Don't analyze last If
         }
@@ -132,8 +122,7 @@ public class Condition extends Block
         analyzeIf(block);
     }
 
-    private void analyzeIf(Block blockA)
-    {
+    private void analyzeIf(Block blockA) {
         Block block = getPriorPushOperation() != null ? this : blockA;
         int opcode = ifOp.getOpcode();
 
@@ -143,35 +132,25 @@ public class Condition extends Block
 
         isVar1Boolean = "boolean".equals(prev1.getPushType());
 
-        if (opcode == 198 || opcode == 199)
-        {
+        if (opcode == 198 || opcode == 199) {
             var2str = "null";
-        }
-        else if (opcode >= 153 && opcode <= 158)
-        {
+        } else if (opcode >= 153 && opcode <= 158) {
             var2str = "0";
-            if (prev1 instanceof SignumView)
-            {
+            if (prev1 instanceof SignumView) {
                 var2 = ((SignumView) prev1).getVar2();
                 var2str = "";
                 var1 = ((SignumView) prev1).getVar1();
-            }
-            else
-            {
+            } else {
                 operation = (String) negOps.get(operation);
             }
-        }
-        else
-        {
+        } else {
             PopView prevPop = null;
-            if (getOperationPriorTo(prev1.getStartByte()) instanceof PopView)
-            {
+            if (getOperationPriorTo(prev1.getStartByte()) instanceof PopView) {
                 prevPop = (PopView) getOperationPriorTo(prev1.getStartByte());
             }
             block.removePriorPushOperation();
             OperationView prev2 = context.pop();
-            if (prevPop != null)
-            {
+            if (prevPop != null) {
                 //LocalVariable popedLV = block.getLocalVariable(prevPop.getLocalVariableNumber(), null, (int) prevPop.getStartByte());
                 LocalVariable popedLV = prevPop.getLocalVariable();
                 //popedLV.setPrinted(true);
@@ -181,9 +160,7 @@ public class Condition extends Block
                 FakePopView fakePop = new FakePopView(getMethodView(), popedLV, "0");
                 // insert fake pop before loop
                 getParent().getParent().addOperation(fakePop, block.getParent().getStartByte());
-            }
-            else
-            {
+            } else {
                 var2 = prev2;
             }
             // TODO what to do with signum
@@ -191,10 +168,9 @@ public class Condition extends Block
     }
 
     /**
-     * @deprecated 
+     * @deprecated
      */
-    public String str()
-    {
+    public String str() {
         /*
         if (isVar1Boolean && "0".equals(var2str))
         {
@@ -212,63 +188,45 @@ public class Condition extends Block
          */
         StringBuffer sb = new StringBuffer();
         Iterator i = getView().iterator();
-        while (i.hasNext())
-        {
+        while (i.hasNext()) {
             Object obj = i.next();
-            if (obj instanceof String)
-            {
+            if (obj instanceof String) {
                 sb.append((String) obj);
-            }
-            else
-            {
+            } else {
                 sb.append(((OperationView) obj).source2());
             }
         }
         return sb.toString();
     }
 
-    public List getView()
-    {
+    public List getView() {
         List src = new ArrayList();
-        if (isVar1Boolean && "0".equals(var2str))
-        {
+        if (isVar1Boolean && "0".equals(var2str)) {
             String oper = needReverseOperation ? (String) reversedOps.get(operation) : operation;
-            if ("==".equals(oper))
-            {
+            if ("==".equals(oper)) {
                 src.add("!");
                 src.add(var1);
                 return src;
-            }
-            else if ("!=".equals(oper))
-            {
+            } else if ("!=".equals(oper)) {
                 src.add(var1);
                 return src;
             }
         }
-        if ("".equals(var2str))
-        {
-            if (var2 instanceof PopView)
-            {
+        if ("".equals(var2str)) {
+            if (var2 instanceof PopView) {
                 src.add("(");
                 src.add(var2);
                 src.add(")");
-            }
-            else
-            {
+            } else {
                 src.add(var2);
             }
-        }
-        else
-        {
+        } else {
             src.add(var2str);
         }
         src.add(" ");
-        if (needReverseOperation)
-        {
+        if (needReverseOperation) {
             src.add(reversedOps.get(operation));
-        }
-        else
-        {
+        } else {
             src.add(operation);
         }
         src.add(" ");
@@ -276,8 +234,7 @@ public class Condition extends Block
         return src;
     }
 
-    protected void storeLVInBlock(int ivar, LocalVariable lv)
-    {
+    protected void storeLVInBlock(int ivar, LocalVariable lv) {
         parent.lvars.put(new Integer(ivar), lv);
     }
 }

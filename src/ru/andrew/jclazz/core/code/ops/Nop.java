@@ -1,11 +1,9 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.Code;
 
-public class Nop extends Operation
-{
-    public Nop(int opcode, long start_byte, Code code)
-    {
+public class Nop extends Operation {
+    public Nop(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
     }
 }

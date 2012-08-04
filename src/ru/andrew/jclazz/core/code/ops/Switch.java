@@ -1,27 +1,26 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.Code;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Opcodes: 170, 171<BR>
  * Parameters: N<BR>
  * Operand stack: index => <BR>
  */
-public class Switch extends Operation
-{
+public class Switch extends Operation {
     private List caseBlocks;
 
     private int operationLength;
 
-    public Switch(int opcode, long start_byte, Code code)
-    {
+    public Switch(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
     }
 
-    protected void loadParams(Code code)
-    {
+    protected void loadParams(Code code) {
         caseBlocks = new ArrayList();
 
         int zero_bytes = 3 - (int) (start_byte % 4);
@@ -51,8 +50,7 @@ public class Switch extends Operation
 
             operationLength += 8;
 
-            for (int i = low; i <= high; i++)
-            {
+            for (int i = low; i <= high; i++) {
                 int jumpbyte1 = code.getNextByte();
                 int jumpbyte2 = code.getNextByte();
                 int jumpbyte3 = code.getNextByte();
@@ -61,8 +59,7 @@ public class Switch extends Operation
                 caseBlocks.add(new Case(i, start_byte + jumpOffset, false));
             }
             operationLength += 4 * (high - low + 1);
-        }
-        else if (opcode.getOpcode() == 171) // lookupswitch
+        } else if (opcode.getOpcode() == 171) // lookupswitch
         {
             int npairs1 = code.getNextByte();
             int npairs2 = code.getNextByte();
@@ -71,8 +68,7 @@ public class Switch extends Operation
             int total_pairs = (npairs1 << 24) | (npairs2 << 16) | (npairs3 << 8) | npairs4;
             operationLength += 4;
 
-            for (int i = 0; i < total_pairs; i++)
-            {
+            for (int i = 0; i < total_pairs; i++) {
                 int matchbyte1 = code.getNextByte();
                 int matchbyte2 = code.getNextByte();
                 int matchbyte3 = code.getNextByte();
@@ -90,63 +86,51 @@ public class Switch extends Operation
         }
     }
 
-    public int getLength()
-    {
+    public int getLength() {
         return operationLength;
     }
 
-    public List getCaseBlocks()
-    {
+    public List getCaseBlocks() {
         return caseBlocks;
     }
 
-    public class Case
-    {
+    public class Case {
         private int value;
         private long offset;
         private boolean isDeafult = false;
 
-        public Case(int value, long offset, boolean deafult)
-        {
+        public Case(int value, long offset, boolean deafult) {
             this.value = value;
             this.offset = offset;
             this.isDeafult = deafult;
         }
 
-        public long getOffset()
-        {
+        public long getOffset() {
             return offset;
         }
 
-        public int getValue()
-        {
+        public int getValue() {
             return value;
         }
 
-        public boolean isDeafult()
-        {
+        public boolean isDeafult() {
             return isDeafult;
         }
     }
 
-    public String asString()
-    {
+    public String asString() {
         StringBuffer sb = new StringBuffer();
         sb.append(start_byte).append(" ").append(opcode.getMnemonic()).append(" ");
-        for (Iterator it = caseBlocks.iterator(); it.hasNext();)
-        {
+        for (Iterator it = caseBlocks.iterator(); it.hasNext(); ) {
             Case cb = (Case) it.next();
-            if (cb.isDeafult)
-            {
+            if (cb.isDeafult) {
                 sb.append("default:");
-            }
-            else
-            {
+            } else {
                 sb.append(cb.value).append(":");
             }
             sb.append(cb.offset).append(" ");
         }
         return sb.toString();
     }
-    
+
 }

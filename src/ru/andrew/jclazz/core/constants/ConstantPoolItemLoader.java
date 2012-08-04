@@ -1,12 +1,12 @@
 package ru.andrew.jclazz.core.constants;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public final class ConstantPoolItemLoader
-{
+public final class ConstantPoolItemLoader {
     private static final int CONSTANT_Class = 7;
     private static final int CONSTANT_Fieldref = 9;
     private static final int CONSTANT_Methodref = 10;
@@ -19,12 +19,10 @@ public final class ConstantPoolItemLoader
     private static final int CONSTANT_NameAndType = 12;
     private static final int CONSTANT_Utf8 = 1;
 
-    private static CONSTANT loadConstant(int num, ClazzInputStream cis, Clazz clazz) throws ClazzException, IOException
-    {
+    private static CONSTANT loadConstant(int num, ClazzInputStream cis, Clazz clazz) throws ClazzException, IOException {
         CONSTANT cpi;
         int tag = cis.readU1();
-        switch(tag)
-        {
+        switch (tag) {
             case CONSTANT_Class:
                 cpi = new CONSTANT_Class(num, tag, clazz);
                 break;
@@ -65,30 +63,25 @@ public final class ConstantPoolItemLoader
         return cpi;
     }
 
-    public static CONSTANT[] loadConstants(ClazzInputStream cis, Clazz clazz) throws IOException, ClazzException
-    {
+    public static CONSTANT[] loadConstants(ClazzInputStream cis, Clazz clazz) throws IOException, ClazzException {
         int constantPoolCount = cis.readU2();
         CONSTANT[] constantPool = new CONSTANT[constantPoolCount];
         constantPool[0] = null;
-        for (int i = 1; i < constantPoolCount; i++)
-        {
+        for (int i = 1; i < constantPoolCount; i++) {
             constantPool[i] = loadConstant(i, cis, clazz);
 
             // Long and double occupies 2 entries
             if (constantPool[i] instanceof CONSTANT_Long ||
-                constantPool[i] instanceof CONSTANT_Double)
-            {
+                    constantPool[i] instanceof CONSTANT_Double) {
                 i++;
             }
         }
         return constantPool;
     }
 
-    public static void updateConstants(CONSTANT[] constantPool) throws ClazzException
-    {
+    public static void updateConstants(CONSTANT[] constantPool) throws ClazzException {
         // Update loaded constants
-        for (int i = 0; i < constantPool.length; i++)
-        {
+        for (int i = 0; i < constantPool.length; i++) {
             if (constantPool[i] != null) constantPool[i].update();
         }
     }

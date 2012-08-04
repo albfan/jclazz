@@ -1,7 +1,8 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.attributes.Code;
+import ru.andrew.jclazz.core.constants.CONSTANT;
+import ru.andrew.jclazz.core.constants.CONSTANT_Class;
 
 /**
  * Opcodes: 1 - 20<BR>
@@ -11,20 +12,17 @@ import ru.andrew.jclazz.core.constants.*;
  * other: no<BR>
  * Operand stack: => value<BR>
  */
-public class PushConst extends PushOperation
-{
+public class PushConst extends PushOperation {
     private String pushValue;
     private String pushType;
     private boolean isClassPushed;
 
-    public PushConst(int opcode, long start_byte, Code code)
-    {
+    public PushConst(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         isClassPushed = false;
         // Push constants
-        switch (opcode)
-        {
+        switch (opcode) {
             case 1:
                 pushValue = "null";
                 pushType = null;
@@ -96,39 +94,30 @@ public class PushConst extends PushOperation
                 break;
             case 18:
                 CONSTANT cp_info_18 = code.getClazz().getConstant_pool()[params[0]];
-                if (cp_info_18 instanceof CONSTANT_Class)
-                {
+                if (cp_info_18 instanceof CONSTANT_Class) {
                     pushValue = ((CONSTANT_Class) cp_info_18).getFullyQualifiedName() + ".class";
                     isClassPushed = true;
-                }
-                else
-                {
+                } else {
                     pushValue = cp_info_18.getValue();
                 }
                 pushType = cp_info_18.getType();
                 break;
             case 19:
                 CONSTANT cp_info_19 = code.getClazz().getConstant_pool()[(params[0] << 8) | params[1]];
-                if (cp_info_19 instanceof CONSTANT_Class)
-                {
+                if (cp_info_19 instanceof CONSTANT_Class) {
                     pushValue = ((CONSTANT_Class) cp_info_19).getFullyQualifiedName() + ".class";
                     isClassPushed = true;
-                }
-                else
-                {
+                } else {
                     pushValue = cp_info_19.getValue();
                 }
                 pushType = cp_info_19.getType();
                 break;
             case 20:
                 CONSTANT cp_info_20 = code.getClazz().getConstant_pool()[(params[0] << 8) | params[1]];
-                if (cp_info_20 instanceof CONSTANT_Class)
-                {
+                if (cp_info_20 instanceof CONSTANT_Class) {
                     pushValue = ((CONSTANT_Class) cp_info_20).getFullyQualifiedName() + ".class";
                     isClassPushed = true;
-                }
-                else
-                {
+                } else {
                     pushValue = cp_info_20.getValue();
                 }
                 pushType = cp_info_20.getType();
@@ -136,25 +125,20 @@ public class PushConst extends PushOperation
         }
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return pushType;
     }
 
-    public String getPushValue()
-    {
+    public String getPushValue() {
         return pushValue;
     }
 
-    public boolean isClassPushed()
-    {
+    public boolean isClassPushed() {
         return isClassPushed;
     }
 
-    public String asString()
-    {
-        if (opcode.getOpcode() >= 16 && opcode.getOpcode() <= 20)
-        {
+    public String asString() {
+        if (opcode.getOpcode() >= 16 && opcode.getOpcode() <= 20) {
             return start_byte + " " + opcode.getMnemonic() + " " + pushValue + " (" + pushType + ")";
         }
         return super.asString();

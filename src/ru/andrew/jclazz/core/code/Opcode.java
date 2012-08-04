@@ -1,15 +1,13 @@
 package ru.andrew.jclazz.core.code;
 
-public final class Opcode
-{
+public final class Opcode {
     private int opcode;
     private String mnemonic;
     private String description;
     private int params_count;
     private boolean isVariableLength;
 
-    private Opcode(int opcode, String mnemonic, String description, int params_count)
-    {
+    private Opcode(int opcode, String mnemonic, String description, int params_count) {
         this.opcode = opcode;
         this.mnemonic = mnemonic;
         this.description = description;
@@ -17,28 +15,23 @@ public final class Opcode
         this.isVariableLength = params_count < 0;
     }
 
-    public int getOpcode()
-    {
+    public int getOpcode() {
         return opcode;
     }
 
-    public String getMnemonic()
-    {
+    public String getMnemonic() {
         return mnemonic;
     }
 
-    public String getDescription()
-    {
+    public String getDescription() {
         return description;
     }
 
-    public boolean isVariableLength()
-    {
+    public boolean isVariableLength() {
         return isVariableLength;
     }
 
-    public int getParamsCount()
-    {
+    public int getParamsCount() {
         return params_count;
     }
 
@@ -46,8 +39,7 @@ public final class Opcode
 
     private static Opcode[] opcodes = new Opcode[256];
 
-    static
-    {
+    static {
         opcodes[0] = new Opcode(0, "nop", "Do nothing", 0);
 
         // Load Constant Instructions (1 - 20)
@@ -283,8 +275,7 @@ public final class Opcode
         opcodes[255] = new Opcode(255, "impdep2", "RESERVED", 0);
     }
 
-    public static Opcode getOpcode(int opcode)
-    {
+    public static Opcode getOpcode(int opcode) {
         return opcodes[opcode];
     }
 }

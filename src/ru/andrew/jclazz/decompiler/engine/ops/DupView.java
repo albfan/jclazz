@@ -1,28 +1,24 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.Dup;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class DupView extends OperationView
-{
-    public DupView(Operation operation, MethodSourceView methodView)
-    {
+public class DupView extends OperationView {
+    public DupView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return ref.getType();
     }
 
-    public String source()
-    {
+    public String source() {
         return ref.getOperation();
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         OperationView prev = block.getPriorPushOperation();
         if (prev instanceof NewView)    // For new + init
@@ -36,29 +32,24 @@ public class DupView extends OperationView
          * */
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         OperationView value1 = context.pop();
 
         int shift = ((Dup) operation).getStackShift();
-        switch (shift)
-        {
-            case 0:
-            {
+        switch (shift) {
+            case 0: {
                 context.push(value1);
                 context.push(value1);
                 break;
             }
-            case 1:
-            {
+            case 1: {
                 OperationView value2 = context.pop();
                 context.push(value1);
                 context.push(value2);
                 context.push(value1);
                 break;
             }
-            case 2:
-            {
+            case 2: {
                 OperationView value2 = context.pop();
                 String v2pushType = value2.getPushType();
                 if ("double".equals(v2pushType) || "long".equals(v2pushType))   //Category 2
@@ -66,9 +57,7 @@ public class DupView extends OperationView
                     context.push(value1);
                     context.push(value2);
                     context.push(value1);
-                }
-                else
-                {
+                } else {
                     OperationView value3 = context.pop();
                     context.push(value1);
                     context.push(value3);
@@ -78,11 +67,10 @@ public class DupView extends OperationView
                 break;
             }
         }
-        
+
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

@@ -1,38 +1,32 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class ThrowView extends OperationView
-{
+public class ThrowView extends OperationView {
     private String thrownValue;
 
-    public ThrowView(Operation operation, MethodSourceView methodView)
-    {
+    public ThrowView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return null;
     }
 
-    public String source()
-    {
+    public String source() {
         return "throw " + thrownValue;
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         OperationView prev = block.removePriorPushOperation();
         thrownValue = prev.source();
          */
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         OperationView prev = context.pop();
         view = new Object[]{"throw ", prev};
         context.push(this);

@@ -1,24 +1,20 @@
 package ru.andrew.jclazz.core.constants;
 
-import java.math.*;
+import java.math.BigInteger;
 
-public final class U8
-{
+public final class U8 {
     private static final BigInteger LOW_MASK = new BigInteger("FFFFFFFF", 16);
 
     private long high;
     private long low;
 
-    public U8(long high, long low)
-    {
+    public U8(long high, long low) {
         this.high = high;
         this.low = low;
     }
 
-    public U8(String hex)
-    {
-        if (!hex.startsWith("0x"))
-        {
+    public U8(String hex) {
+        if (!hex.startsWith("0x")) {
             throw new RuntimeException("Invalid U8 hex format");
         }
         BigInteger h = new BigInteger(hex.substring(2), 16);
@@ -26,45 +22,31 @@ public final class U8
         this.low = h.and(LOW_MASK).longValue();
     }
 
-    public long getHigh()
-    {
+    public long getHigh() {
         return high;
     }
 
-    public long getLow()
-    {
+    public long getLow() {
         return low;
     }
 
-    public int compareTo(U8 u8)
-    {
-        if (high > u8.getHigh())
-        {
+    public int compareTo(U8 u8) {
+        if (high > u8.getHigh()) {
             return 1;
-        }
-        else if (high < u8.getHigh())
-        {
+        } else if (high < u8.getHigh()) {
             return -1;
-        }
-        else
-        {
-            if (low > u8.getLow())
-            {
+        } else {
+            if (low > u8.getLow()) {
                 return 1;
-            }
-            else if (low < u8.getLow())
-            {
+            } else if (low < u8.getLow()) {
                 return -1;
-            }
-            else
-            {
+            } else {
                 return 0;
             }
         }
     }
 
-    public long lowest52bit()
-    {
+    public long lowest52bit() {
         return ((high & 0xFFFFFL) << 32) + low;
     }
 }

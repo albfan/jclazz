@@ -1,22 +1,18 @@
 package ru.andrew.jclazz.core;
 
-public class FieldDescriptor
-{
+public class FieldDescriptor {
     private String baseType = null;
     private String _package = null;
     private String _class = null;
     private int arrayDimensions;
 
-    public FieldDescriptor(String descriptor) throws ClazzException
-    {
+    public FieldDescriptor(String descriptor) throws ClazzException {
         arrayDimensions = 0;
-        while (descriptor.charAt(arrayDimensions) == '[')
-        {
+        while (descriptor.charAt(arrayDimensions) == '[') {
             arrayDimensions++;
         }
         int currentPos = arrayDimensions;
-        switch (descriptor.charAt(currentPos))
-        {
+        switch (descriptor.charAt(currentPos)) {
             case 'B':
                 baseType = "byte";
                 break;
@@ -45,13 +41,10 @@ public class FieldDescriptor
                 String type = descriptor.substring(currentPos + 1, descriptor.length() - 1);
                 type = type.replace('/', '.');
                 int ind = type.lastIndexOf('.');
-                if (ind >= 0)
-                {
+                if (ind >= 0) {
                     _package = type.substring(0, ind);
                     _class = type.substring(ind + 1);
-                }
-                else
-                {
+                } else {
                     _package = "";
                     _class = type;
                 }
@@ -64,55 +57,42 @@ public class FieldDescriptor
         }
     }
 
-    public String getBaseType()
-    {
+    public String getBaseType() {
         return baseType;
     }
 
-    public String getPackage()
-    {
+    public String getPackage() {
         return _package;
     }
 
-    public String getClazz()
-    {
+    public String getClazz() {
         return _class;
     }
 
-    public int getArrayDimensions()
-    {
+    public int getArrayDimensions() {
         return arrayDimensions;
     }
 
-    public boolean isBaseType()
-    {
+    public boolean isBaseType() {
         return baseType != null;
     }
 
-    public String getFQN()
-    {
+    public String getFQN() {
         StringBuffer sb = new StringBuffer();
-        if (_package != null && !"".equals(_package))
-        {
+        if (_package != null && !"".equals(_package)) {
             sb.append(_package).append(".").append(_class);
-        }
-        else if (_class != null)
-        {
+        } else if (_class != null) {
             sb.append(_class);
-        }
-        else
-        {
+        } else {
             sb.append(baseType);
         }
-        for (int i = 0; i < arrayDimensions; i++)
-        {
+        for (int i = 0; i < arrayDimensions; i++) {
             sb.append("[]");
         }
         return sb.toString();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return getFQN();
     }
 }

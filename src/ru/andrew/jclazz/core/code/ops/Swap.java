@@ -7,10 +7,8 @@ import ru.andrew.jclazz.core.attributes.Code;
  * Parameters: no<BR>
  * Operand stack: value2, value1 => value1, value2<BR>
  */
-public class Swap extends Operation
-{
-    public Swap(int opcode, long start_byte, Code code)
-    {
+public class Swap extends Operation {
+    public Swap(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
     }
 }

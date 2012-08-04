@@ -1,7 +1,7 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.attributes.Code;
+import ru.andrew.jclazz.core.constants.CONSTANT_Fieldref;
 
 /**
  * Opcodes: 178, 180<BR>
@@ -10,14 +10,12 @@ import ru.andrew.jclazz.core.constants.*;
  * getstatic: => value<BR>
  * getfield: objectref => value<BR>
  */
-public class GetField extends PushOperation
-{
+public class GetField extends PushOperation {
     private String staticRef;
     private String name;
     private String fieldType;
 
-    public GetField(int opcode, long start_byte, Code code)
-    {
+    public GetField(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         CONSTANT_Fieldref f_info = (CONSTANT_Fieldref) code.getClazz().getConstant_pool()[(params[0] << 8) | params[1]];
@@ -29,23 +27,19 @@ public class GetField extends PushOperation
         }
     }
 
-    public String getFieldType()
-    {
+    public String getFieldType() {
         return fieldType;
     }
 
-    public String getFieldName()
-    {
+    public String getFieldName() {
         return name;
     }
 
-    public String getClassForStaticField()
-    {
+    public String getClassForStaticField() {
         return staticRef;
     }
 
-    public String asString()
-    {
+    public String asString() {
         StringBuffer sb = new StringBuffer();
         sb.append(start_byte).append(" ").append(opcode.getMnemonic()).append(" ");
         if (opcode.getOpcode() == 178)  //getstatic

@@ -1,6 +1,6 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.Code;
 
 /**
  * Opcodes: 96 - 119<BR>
@@ -9,39 +9,27 @@ import ru.andrew.jclazz.core.attributes.*;
  * xneg: value => result<BR>
  * other: value1, value2 => result<BR>
  */
-public class Arithmetic extends PushOperation
-{
+public class Arithmetic extends PushOperation {
     private String operation;
     private String resType;
 
-    public Arithmetic(int opcode, long start_byte, Code code)
-    {
+    public Arithmetic(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
-        if (opcode >= 96 && opcode <= 99)
-        {
+        if (opcode >= 96 && opcode <= 99) {
             operation = "+";
-        }
-        else if (opcode >= 100 && opcode <= 103)
-        {
+        } else if (opcode >= 100 && opcode <= 103) {
             operation = "-";
-        }
-        else if (opcode >= 104 && opcode <= 107)
-        {
+        } else if (opcode >= 104 && opcode <= 107) {
             operation = "*";
-        }
-        else if (opcode >= 108 && opcode <= 111)
-        {
+        } else if (opcode >= 108 && opcode <= 111) {
             operation = "/";
-        }
-        else if (opcode >= 112 && opcode <= 115)
-        {
+        } else if (opcode >= 112 && opcode <= 115) {
             operation = "%";
         }
 
         int rem = opcode % 4;
-        switch (rem)
-        {
+        switch (rem) {
             case 0:
                 resType = "int";
                 break;
@@ -57,18 +45,15 @@ public class Arithmetic extends PushOperation
         }
     }
 
-    public String getOperation()
-    {
+    public String getOperation() {
         return operation;
     }
 
-    public String getResultType()
-    {
+    public String getResultType() {
         return resType;
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

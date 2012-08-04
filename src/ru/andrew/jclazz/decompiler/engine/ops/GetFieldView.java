@@ -1,12 +1,14 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.engine.*;
-import ru.andrew.jclazz.decompiler.*;
-import ru.andrew.jclazz.core.code.ops.*;
+import ru.andrew.jclazz.core.code.ops.GetField;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.AnonymousClazzSourceView;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.CodeItem;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
+import ru.andrew.jclazz.decompiler.engine.blocks.IfBlock;
 
-public class GetFieldView extends OperationView
-{
+public class GetFieldView extends OperationView {
     private String objectRef;
 
     private boolean isInInnerClass = false;
@@ -14,8 +16,7 @@ public class GetFieldView extends OperationView
     private boolean isJava1_4dotclass = false;
     private String java1_4dotclass;
 
-    public GetFieldView(Operation operation, MethodSourceView methodView)
-    {
+    public GetFieldView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
 
         isInInnerClass = methodView.getClazzView().isInnerClass();
@@ -35,15 +36,13 @@ public class GetFieldView extends OperationView
             //  XX: getstatic class$java$lang$Integer
             //  YY: method
             if (objectRef.equals(methodView.getClazz().getThisClassInfo().getFullyQualifiedName()) &&
-                    ((GetField) operation).getFieldName().startsWith("class$"))
-            {
+                    ((GetField) operation).getFieldName().startsWith("class$")) {
                 isJava1_4dotclass = true;
             }
         }
     }
 
-    public String source()
-    {
+    public String source() {
         /*
         if (isJava1_4dotclass)
         {
@@ -61,13 +60,11 @@ public class GetFieldView extends OperationView
         return null;
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return ((GetField) operation).getFieldType();
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         if (getOpcode() == 178)   // getstatic
         {
@@ -85,9 +82,9 @@ public class GetFieldView extends OperationView
         else if (isJava1_4dotclass)   // getstatic
         {
             // Javac
-            if (block.getNextOperation() instanceof IfBlock)
+            if (block.getOperation() instanceof IfBlock)
             {
-                IfBlock ifb = (IfBlock) block.getNextOperation();
+                IfBlock ifb = (IfBlock) block.getOperation();
                 long target = block.getOperationAfter(ifb.getStartByte()).getStartByte();
                 java1_4dotclass = ((OperationView) ifb.getFirstOperation()).source();
                 // Removing first and last "
@@ -95,9 +92,9 @@ public class GetFieldView extends OperationView
                 block.createSubBlock(getStartByte() + 1, target + 1, null);
             }
             // Jikes
-            else if (block.getNextOperation() instanceof DupView)
+            else if (block.getOperation() instanceof DupView)
             {
-                CodeItem ifItem = block.getOperationAfter(block.getNextOperation().getStartByte());
+                CodeItem ifItem = block.getOperationAfter(block.getOperation().getStartByte());
                 if (ifItem instanceof IfBlock)
                 {
                     IfBlock ifb = (IfBlock) ifItem;
@@ -113,22 +110,20 @@ public class GetFieldView extends OperationView
          * */
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         if (getOpcode() == 178)   // getstatic
         {
             objectRef = alias(objectRef);
             String fieldName = ((GetField) operation).getFieldName();
-            if (fieldName.startsWith("$SwitchMap$"))
-            {
+            if (fieldName.startsWith("$SwitchMap$")) {
                 fieldName = "switchMap";
 
                 //if (isInInnerClass)
                 //{
-                    //String clazzName = methodView.getClazzView().getClazz().getThisClassInfo().getName();
+                //String clazzName = methodView.getClazzView().getClazz().getThisClassInfo().getName();
                 String clazzName = objectRef;
-                    clazzName = "SM_" + clazzName.substring(clazzName.lastIndexOf('$') + 1);
-                    objectRef = clazzName;
+                clazzName = "SM_" + clazzName.substring(clazzName.lastIndexOf('$') + 1);
+                objectRef = clazzName;
                 //}
             }
             view = new Object[]{objectRef, ".", fieldName};
@@ -139,40 +134,29 @@ public class GetFieldView extends OperationView
             OperationView prev = context.pop();
 
             if (isInInnerClass && methodView.getClazzView() instanceof AnonymousClazzSourceView &&
-                    ((AnonymousClazzSourceView) methodView.getClazzView()).getOuterClassParam(((GetField) operation).getFieldName()) != null)
-            {
+                    ((AnonymousClazzSourceView) methodView.getClazzView()).getOuterClassParam(((GetField) operation).getFieldName()) != null) {
                 String outerName = ((AnonymousClazzSourceView) methodView.getClazzView()).getOuterClassParam(((GetField) operation).getFieldName());
                 view = new Object[]{outerName};
-            }
-            else if (isInInnerClass && "this$0".equals(prev.source3()))
-            {
+            } else if (isInInnerClass && "this$0".equals(prev.source3())) {
                 view = new Object[]{((GetField) operation).getFieldName()};
-            }
-            else
-            {
-                if ("this".equals(prev.source3()))
-                {
+            } else {
+                if ("this".equals(prev.source3())) {
                     // TODO check local variables for the same name
                     String fieldName = ((GetField) operation).getFieldName();
-                    if (isInInnerClass && "this$0".equals(fieldName))
-                    {
+                    if (isInInnerClass && "this$0".equals(fieldName)) {
                         fieldName = "this";
                     }
                     view = new Object[]{fieldName};
-                }
-                else
-                {
+                } else {
                     view = new Object[]{prev, "." + ((GetField) operation).getFieldName()};
                 }
             }
             context.push(this);
-        }
-        else if (isJava1_4dotclass)   // getstatic
+        } else if (isJava1_4dotclass)   // getstatic
         {
             // Javac
-            if (block.getNextOperation() instanceof IfBlock)
-            {
-                IfBlock ifb = (IfBlock) block.getNextOperation();
+            if (block.getOperation() instanceof IfBlock) {
+                IfBlock ifb = (IfBlock) block.getOperation();
                 long target = block.getOperationAfter(ifb.getStartByte()).getStartByte();
                 java1_4dotclass = ((OperationView) ifb.getFirstOperation()).source3();
                 // Removing first and last "
@@ -180,11 +164,9 @@ public class GetFieldView extends OperationView
                 block.createSubBlock(getStartByte() + 1, target + 1, null);
             }
             // Jikes
-            else if (block.getNextOperation() instanceof DupView)
-            {
-                CodeItem ifItem = block.getOperationAfter(block.getNextOperation().getStartByte());
-                if (ifItem instanceof IfBlock)
-                {
+            else if (block.getOperation() instanceof DupView) {
+                CodeItem ifItem = block.getOperationAfter(block.getOperation().getStartByte());
+                if (ifItem instanceof IfBlock) {
                     IfBlock ifb = (IfBlock) ifItem;
                     long target = block.getOperationAfter(ifb.getStartByte()).getStartByte();
                     ifb.removeFirstOperation();
@@ -199,8 +181,7 @@ public class GetFieldView extends OperationView
         }
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

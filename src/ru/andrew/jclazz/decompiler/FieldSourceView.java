@@ -1,14 +1,12 @@
 package ru.andrew.jclazz.decompiler;
 
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.FieldInfo;
 
-public class FieldSourceView extends SourceView
-{
+public class FieldSourceView extends SourceView {
     protected FieldInfo fieldInfo;
     private ClazzSourceView clazzSourceView;
 
-    public FieldSourceView(FieldInfo fieldInfo, ClazzSourceView clazzSourceView)
-    {
+    public FieldSourceView(FieldInfo fieldInfo, ClazzSourceView clazzSourceView) {
         super();
         this.fieldInfo = fieldInfo;
         this.clazzSourceView = clazzSourceView;
@@ -16,17 +14,14 @@ public class FieldSourceView extends SourceView
         loadSource();
     }
 
-    protected void parse()
-    {
-        if (fieldInfo.isSynthetic() && fieldInfo.getName().startsWith("$SwitchMap$"))
-        {
+    protected void parse() {
+        if (fieldInfo.isSynthetic() && fieldInfo.getName().startsWith("$SwitchMap$")) {
             print("static int[] switchMap;");
         }
 
         if (fieldInfo.isSynthetic()) return;
 
-        if (fieldInfo.isDeprecated())
-        {
+        if (fieldInfo.isDeprecated()) {
             println("/**");
             println("  * @deprecated");
             println(" */");
@@ -39,43 +34,35 @@ public class FieldSourceView extends SourceView
         if (fieldInfo.isVolatile()) print("volatile ");
         if (fieldInfo.isTransient()) print("transient ");
 
-        if (fieldInfo.getSignature() == null)
-        {
+        if (fieldInfo.getSignature() == null) {
             String descriptor = fieldInfo.getDescriptor().getFQN();
 
             // Inner Class support
-            if (descriptor.indexOf('$') != -1)
-            {
+            if (descriptor.indexOf('$') != -1) {
                 InnerClassView icv = getClazzView().getInnerClassView(descriptor);
-                if (icv != null)
-                {
+                if (icv != null) {
                     descriptor = descriptor.substring(descriptor.indexOf('$') + 1);
                 }
             }
 
             print(importClass(descriptor));
-        }
-        else
-        {
+        } else {
             print(SignatureView.asString(fieldInfo.getSignature(), getClazzView()));
         }
 
         print(" " + fieldInfo.getName());
-        if (fieldInfo.getConstantValue() != null)
-        {
+        if (fieldInfo.getConstantValue() != null) {
             print(" = ");
             print(fieldInfo.getConstantValue());
         }
         println(";");
     }
 
-    public FieldInfo getFieldInfo()
-    {
+    public FieldInfo getFieldInfo() {
         return fieldInfo;
     }
 
-    public ClazzSourceView getClazzView()
-    {
+    public ClazzSourceView getClazzView() {
         return clazzSourceView;
     }
 }

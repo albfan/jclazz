@@ -1,23 +1,20 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.Code;
 
 /**
  * Opcodes: 120 - 131<BR>
  * Parameters: no<BR>
  * Operand stack: value1, value2 => result<BR>
  */
-public class BitArithmetic extends PushOperation
-{
+public class BitArithmetic extends PushOperation {
     private String type;
     private String oper;
 
-    public BitArithmetic(int opcode, long start_byte, Code code)
-    {
+    public BitArithmetic(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
-        switch (opcode)
-        {
+        switch (opcode) {
             case 120:
                 oper = "<<";
                 type = "int";
@@ -71,13 +68,11 @@ public class BitArithmetic extends PushOperation
         }
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return type;
     }
 
-    public String getOperation()
-    {
+    public String getOperation() {
         return oper;
     }
 }

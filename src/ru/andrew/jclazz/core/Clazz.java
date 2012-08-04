@@ -2,11 +2,16 @@ package ru.andrew.jclazz.core;
 
 import ru.andrew.jclazz.core.attributes.*;
 import ru.andrew.jclazz.core.attributes.Deprecated;
-import ru.andrew.jclazz.core.constants.*;
-import ru.andrew.jclazz.core.signature.*;
-import ru.andrew.jclazz.core.io.*;
+import ru.andrew.jclazz.core.constants.CONSTANT;
+import ru.andrew.jclazz.core.constants.CONSTANT_Class;
+import ru.andrew.jclazz.core.constants.ConstantPoolItemLoader;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
+import ru.andrew.jclazz.core.signature.ClassSignature;
+import ru.andrew.jclazz.decompiler.FileInputStreamBuilder;
+import ru.andrew.jclazz.decompiler.InputStreamBuilder;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * This is representation of Java class. Last updated according to Java5 ClassFileFormat.
@@ -43,15 +48,17 @@ public class Clazz {
     private String sourceFile;
     private ClassSignature classSignature;
     private InnerClass[] innerClasses;
+    private InputStreamBuilder builder;
 
-    public Clazz(String filename) throws ClazzException, IOException {
-        this(filename, new FileInputStream(filename));
+    public Clazz(String inputFileName) throws ClazzException, IOException {
+        this(inputFileName, new FileInputStreamBuilder());
     }
 
-    public Clazz(String inputFileName, InputStream inputStream) throws IOException, ClazzException {
+    public Clazz(String inputFileName, InputStreamBuilder builder) throws ClazzException, IOException {
+        this.builder = builder;
         this.fileName = inputFileName.endsWith(".class") ? inputFileName : inputFileName + ".class";
 
-        ClazzInputStream cis = new ClazzInputStream(inputStream);
+        ClazzInputStream cis = new ClazzInputStream(builder.getInputStream(inputFileName));
 
         long magic = cis.readU4();
         if (magic != MAGIC_NUMBER) {
@@ -118,6 +125,10 @@ public class Clazz {
         cis.close();
     }
 
+    public InputStreamBuilder getBuilder() {
+        return builder;
+    }
+
     private void loadFields(ClazzInputStream cis) throws ClazzException, IOException {
         for (int i = 0; i < fields.length; i++) {
             fields[i] = new FieldInfo();
@@ -140,8 +151,7 @@ public class Clazz {
         return attributes;
     }
 
-    public void saveToFile(String path) throws IOException
-    {
+    public void saveToFile(String path) throws IOException {
         ClazzOutputStream cos = new ClazzOutputStream(path);
 
         cos.writeU4(MAGIC_NUMBER);

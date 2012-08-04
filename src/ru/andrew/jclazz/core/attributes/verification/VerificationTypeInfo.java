@@ -1,14 +1,15 @@
 package ru.andrew.jclazz.core.attributes.verification;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.constants.CONSTANT_Class;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class VerificationTypeInfo
-{
+public class VerificationTypeInfo {
     private static Map types;   // int -> String
 
     private int tag;
@@ -19,8 +20,7 @@ public class VerificationTypeInfo
     // Uninitialized variable
     private int offset;
 
-    static
-    {
+    static {
         types = new HashMap(9);
         types.put(new Integer(0), "Top");
         types.put(new Integer(1), "Integer");
@@ -33,8 +33,7 @@ public class VerificationTypeInfo
         types.put(new Integer(8), "Uninitialized");
     }
 
-    public void load(ClazzInputStream cis, Clazz clazz) throws IOException
-    {
+    public void load(ClazzInputStream cis, Clazz clazz) throws IOException {
         tag = cis.readU1();
 
         if (tag == 7)   // Object
@@ -48,8 +47,7 @@ public class VerificationTypeInfo
         }
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU1(tag);
         if (tag == 7)   // Object
         {
@@ -61,28 +59,23 @@ public class VerificationTypeInfo
         }
     }
 
-    public int getTag()
-    {
+    public int getTag() {
         return tag;
     }
 
-    public String getType()
-    {
+    public String getType() {
         return (String) types.get(new Integer(tag));
     }
 
-    public CONSTANT_Class getObjectClassForObjectVariable()
-    {
+    public CONSTANT_Class getObjectClassForObjectVariable() {
         return object_class;
     }
 
-    public int getOffsetForUninitializedVariable()
-    {
+    public int getOffsetForUninitializedVariable() {
         return offset;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return types.get(new Integer(tag)) +
                 (tag == 7 ? "(" + object_class.getFullyQualifiedName() + ")" : "") +
                 (tag == 8 ? "(at +" + offset + ")" : "");

@@ -1,13 +1,16 @@
 package ru.andrew.jclazz.core.attributes.annotations;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.FieldDescriptor;
+import ru.andrew.jclazz.core.constants.CONSTANT;
+import ru.andrew.jclazz.core.constants.CONSTANT_Utf8;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public class ElementValuePair
-{
+public class ElementValuePair {
     private CONSTANT_Utf8 element_name;
     private char tag;
 
@@ -28,13 +31,11 @@ public class ElementValuePair
     private boolean isArrayValue;
     private ElementValuePair[] arrayValue;
 
-    public ElementValuePair(CONSTANT_Utf8 element_name, char tag) throws ClazzException
-    {
+    public ElementValuePair(CONSTANT_Utf8 element_name, char tag) throws ClazzException {
         this.element_name = element_name;
         this.tag = tag;
 
-        switch (tag)
-        {
+        switch (tag) {
             case 'B':   // byte
                 isConstValue = true;
                 break;
@@ -79,67 +80,45 @@ public class ElementValuePair
         }
     }
 
-    public void loadValue(ClazzInputStream cis, Clazz clazz) throws IOException, ClazzException
-    {
-        if (isConstValue)
-        {
+    public void loadValue(ClazzInputStream cis, Clazz clazz) throws IOException, ClazzException {
+        if (isConstValue) {
             int const_value_index = cis.readU2();
             const_value = clazz.getConstant_pool()[const_value_index];
-        }
-        else if (isEnumConstValue)
-        {
+        } else if (isEnumConstValue) {
             int ec_type_name_index = cis.readU2();
             enum_const_type_name = (CONSTANT_Utf8) clazz.getConstant_pool()[ec_type_name_index];
 
             int ec_name_index = cis.readU2();
             enum_const_name = (CONSTANT_Utf8) clazz.getConstant_pool()[ec_name_index];
-        }
-        else if (isClassInfo)
-        {
+        } else if (isClassInfo) {
             int class_info_index = cis.readU2();
             returnClassCPInfo = (CONSTANT_Utf8) clazz.getConstant_pool()[class_info_index];
             returnClassInfo = new FieldDescriptor(returnClassCPInfo.getString());
-        }
-        else if (isAnnotationValue)
-        {
+        } else if (isAnnotationValue) {
             annotationValue = Annotation.load(cis, clazz);
-        }
-        else if (isArrayValue)
-        {
+        } else if (isArrayValue) {
             int num_values = cis.readU2();
             arrayValue = new ElementValuePair[num_values];
-            for (int k = 0; k < num_values; k++)
-            {
+            for (int k = 0; k < num_values; k++) {
                 arrayValue[k] = new ElementValuePair(null, (char) cis.readU1());
                 arrayValue[k].loadValue(cis, clazz);
             }
         }
     }
 
-    public void storeValue(ClazzOutputStream cos) throws IOException
-    {
-        if (isConstValue)
-        {
+    public void storeValue(ClazzOutputStream cos) throws IOException {
+        if (isConstValue) {
             cos.writeU2(const_value.getIndex());
-        }
-        else if (isEnumConstValue)
-        {
+        } else if (isEnumConstValue) {
             cos.writeU2(enum_const_type_name.getIndex());
             cos.writeU2(enum_const_name.getIndex());
-        }
-        else if (isClassInfo)
-        {
+        } else if (isClassInfo) {
             cos.writeU2(returnClassCPInfo.getIndex());
-        }
-        else if (isAnnotationValue)
-        {
+        } else if (isAnnotationValue) {
             annotationValue.store(cos);
-        }
-        else if (isArrayValue)
-        {
+        } else if (isArrayValue) {
             cos.writeU2(arrayValue.length);
-            for (int k = 0; k < arrayValue.length; k++)
-            {
+            for (int k = 0; k < arrayValue.length; k++) {
                 arrayValue[k].storeValue(cos);
             }
         }
@@ -147,63 +126,51 @@ public class ElementValuePair
 
     // Getters
 
-    public String getElementName()
-    {
+    public String getElementName() {
         return element_name.getString();
     }
 
-    public CONSTANT getConstValue()
-    {
+    public CONSTANT getConstValue() {
         return const_value;
     }
 
-    public String getEnumConstTypeName()
-    {
+    public String getEnumConstTypeName() {
         return enum_const_type_name.getString();
     }
 
-    public String getEnumConstName()
-    {
+    public String getEnumConstName() {
         return enum_const_name.getString();
     }
 
-    public FieldDescriptor getReturnClassInfo()
-    {
+    public FieldDescriptor getReturnClassInfo() {
         return returnClassInfo;
     }
 
-    public Annotation getAnnotationValue()
-    {
+    public Annotation getAnnotationValue() {
         return annotationValue;
     }
 
-    public ElementValuePair[] getArrayValue()
-    {
+    public ElementValuePair[] getArrayValue() {
         return arrayValue;
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
-        if (element_name != null)
-        {
+        if (element_name != null) {
             sb.append(element_name.getString());
-        }
-        else
-        {
+        } else {
             sb.append("default");
         }
         sb.append(" = ");
         if (isConstValue) sb.append(const_value.getValue());
-        if (isEnumConstValue) sb.append(enum_const_name.getString()).append(" of ").append(enum_const_type_name.getString());
+        if (isEnumConstValue)
+            sb.append(enum_const_name.getString()).append(" of ").append(enum_const_type_name.getString());
         if (isClassInfo) sb.append(returnClassInfo.getFQN());
         if (isAnnotationValue) sb.append(annotationValue.toString());
-        if (isArrayValue)
-        {
+        if (isArrayValue) {
             sb.append("[");
-            for (int i = 0; i < arrayValue.length; i++)
-            {
+            for (int i = 0; i < arrayValue.length; i++) {
                 sb.append(arrayValue[i].toString());
                 if (i < arrayValue.length - 1) sb.append(", ");
             }

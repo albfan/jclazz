@@ -1,38 +1,34 @@
 package ru.andrew.jclazz.decompiler.engine;
 
-import java.util.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.MethodInfo;
 import ru.andrew.jclazz.decompiler.engine.ops.OperationView;
 
-public class MethodContext
-{
-    private Stack stack = new Stack();;
+import java.util.Stack;
 
-    public MethodContext(MethodInfo methodInfo)
-    {
+public class MethodContext {
+    private Stack stack = new Stack();
+    ;
+
+    public MethodContext(MethodInfo methodInfo) {
         // Initialize local variables
         // TODO
     }
 
     //*** STACK METHODS ***//
 
-    public void push(OperationView view)
-    {
+    public void push(OperationView view) {
         stack.push(view);
     }
 
-    public OperationView pop()
-    {
+    public OperationView pop() {
         return stack.isEmpty() ? null : (OperationView) stack.pop();
     }
 
-    public OperationView peek()
-    {
+    public OperationView peek() {
         return (OperationView) stack.peek();
     }
 
-    public int stackSize()
-    {
+    public int stackSize() {
         return stack.size();
     }
 

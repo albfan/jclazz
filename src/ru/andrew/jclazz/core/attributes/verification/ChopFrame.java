@@ -1,41 +1,36 @@
 package ru.andrew.jclazz.core.attributes.verification;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public class ChopFrame extends StackMapFrame
-{
+public class ChopFrame extends StackMapFrame {
     private int offset_delta;
 
-    public ChopFrame(int frame_type)
-    {
+    public ChopFrame(int frame_type) {
         super(frame_type);
     }
 
-    public void load(ClazzInputStream cis, Clazz clazz) throws IOException, ClazzException
-    {
+    public void load(ClazzInputStream cis, Clazz clazz) throws IOException, ClazzException {
         offset_delta = cis.readU2();
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU2(offset_delta);
     }
 
-    public int getOffsetDelta()
-    {
+    public int getOffsetDelta() {
         return offset_delta;
     }
 
-    public int getLastAbsentLocals()
-    {
+    public int getLastAbsentLocals() {
         return 251 - frame_type;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return prefix(this) + getLastAbsentLocals() + " last absent locals";
     }
 }

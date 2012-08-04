@@ -4,10 +4,8 @@ import ru.andrew.jclazz.core.FieldInfo;
 import ru.andrew.jclazz.core.attributes.AttributeInfo;
 import ru.andrew.jclazz.gui.ClazzTreeNode;
 
-public class FieldNode extends ClazzTreeNode
-{
-    public FieldNode(FieldInfo fieldInfo)
-    {
+public class FieldNode extends ClazzTreeNode {
+    public FieldNode(FieldInfo fieldInfo) {
         super(fieldInfo.getName(), fieldInfo, "");
 
         StringBuffer sb = new StringBuffer("<html>");
@@ -35,10 +33,8 @@ public class FieldNode extends ClazzTreeNode
         description = sb.toString();
 
         AttributeInfo[] attrs = fieldInfo.getAttributes();
-        if (attrs != null)
-        {
-            for (int i = 0; i < attrs.length; i++)
-            {
+        if (attrs != null) {
+            for (int i = 0; i < attrs.length; i++) {
                 ClazzTreeNode attrNode = createAttribtueNode(attrs[i]);
                 this.add(attrNode);
             }

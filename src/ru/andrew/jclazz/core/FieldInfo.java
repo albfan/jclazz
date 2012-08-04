@@ -2,14 +2,15 @@ package ru.andrew.jclazz.core;
 
 import ru.andrew.jclazz.core.attributes.*;
 import ru.andrew.jclazz.core.attributes.Deprecated;
-import ru.andrew.jclazz.core.constants.*;
-import ru.andrew.jclazz.core.signature.*;
-import ru.andrew.jclazz.core.io.*;
+import ru.andrew.jclazz.core.constants.CONSTANT;
+import ru.andrew.jclazz.core.constants.CONSTANT_Utf8;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
+import ru.andrew.jclazz.core.signature.FieldTypeSignature;
 
-import java.io.*;
+import java.io.IOException;
 
-public class FieldInfo
-{
+public class FieldInfo {
     public static final int ACC_PUBLIC = 0x0001;
     public static final int ACC_PRIVATE = 0x0002;
     public static final int ACC_PROTECTED = 0x0004;
@@ -20,7 +21,7 @@ public class FieldInfo
     public static final int ACC_SYNTHETIC = 0x1000;
     public static final int ACC_ENUM = 0x4000;
 
-    private int access_flags; 
+    private int access_flags;
     private CONSTANT_Utf8 name;
     private FieldDescriptor descriptor;
     private CONSTANT_Utf8 descriptorUTF8;
@@ -33,8 +34,7 @@ public class FieldInfo
 
     private Clazz clazz;
 
-    public void load(ClazzInputStream cis, Clazz clazz) throws ClazzException, IOException
-    {
+    public void load(ClazzInputStream cis, Clazz clazz) throws ClazzException, IOException {
         this.clazz = clazz;
 
         access_flags = cis.readU2();
@@ -48,144 +48,109 @@ public class FieldInfo
 
         int attributes_count = cis.readU2();
         attrs = new AttributeInfo[attributes_count];
-        for (int i = 0; i < attributes_count; i++)
-        {
+        for (int i = 0; i < attributes_count; i++) {
             attrs[i] = AttributesLoader.loadAttribute(cis, clazz, null);
-            if (attrs[i] instanceof Deprecated)
-            {
+            if (attrs[i] instanceof Deprecated) {
                 isDeprecated = true;
-            }
-            else if (attrs[i] instanceof Synthetic)
-            {
+            } else if (attrs[i] instanceof Synthetic) {
                 isSynthetic = true;
-            }
-            else if (attrs[i] instanceof ConstantValue)
-            {
+            } else if (attrs[i] instanceof ConstantValue) {
                 constantValue = ((ConstantValue) attrs[i]).getConstant();
-            }
-            else if (attrs[i] instanceof Signature)
-            {
+            } else if (attrs[i] instanceof Signature) {
                 signature = FieldTypeSignature.parse(new StringBuffer(((Signature) attrs[i]).getSignature()));
-            }
-            else
-            {
+            } else {
                 // TODO
                 System.out.println("FIELD INFO : attribute : " + attrs[i].getClass() + ", " + attrs[i]);
             }
         }
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU2(access_flags);
         cos.writeU2(name.getIndex());
         cos.writeU2(descriptorUTF8.getIndex());
-        for (int i = 0; i < attrs.length; i++)
-        {
+        for (int i = 0; i < attrs.length; i++) {
             attrs[i].store(cos);
         }
     }
 
-    public int getAccessFlags()
-    {
+    public int getAccessFlags() {
         return access_flags;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name.getString();
     }
 
-    public FieldDescriptor getDescriptor()
-    {
+    public FieldDescriptor getDescriptor() {
         return descriptor;
     }
 
-    public AttributeInfo[] getAttributes()
-    {
+    public AttributeInfo[] getAttributes() {
         return attrs;
     }
 
-    public Clazz getClazz()
-    {
+    public Clazz getClazz() {
         return clazz;
     }
 
-    public boolean isDeprecated()
-    {
+    public boolean isDeprecated() {
         return isDeprecated;
     }
 
-    public String getConstantValue()
-    {
+    public String getConstantValue() {
         if (constantValue == null) return null;
         String val = constantValue.getValue();
-        if ("boolean".equals(descriptor.getFQN()))
-        {
-            if ("1".equals(val))
-            {
+        if ("boolean".equals(descriptor.getFQN())) {
+            if ("1".equals(val)) {
                 return "true";
-            }
-            else if ("0".equals(val))
-            {
+            } else if ("0".equals(val)) {
                 return "false";
-            }
-            else
-            {
+            } else {
                 throw new RuntimeException("FieldInfo: invalid boolean type");
             }
         }
         return val;
     }
 
-    public FieldTypeSignature getSignature()
-    {
+    public FieldTypeSignature getSignature() {
         return signature;
     }
 
     // Access flags methods
-    public boolean isPublic()
-    {
+    public boolean isPublic() {
         return (access_flags & ACC_PUBLIC) > 0;
     }
 
-    public boolean isPrivate()
-    {
+    public boolean isPrivate() {
         return (access_flags & ACC_PRIVATE) > 0;
     }
 
-    public boolean isProtected()
-    {
+    public boolean isProtected() {
         return (access_flags & ACC_PROTECTED) > 0;
     }
 
-    public boolean isStatic()
-    {
+    public boolean isStatic() {
         return (access_flags & ACC_STATIC) > 0;
     }
 
-    public boolean isFinal()
-    {
+    public boolean isFinal() {
         return (access_flags & ACC_FINAL) > 0;
     }
 
-    public boolean isVolatile()
-    {
+    public boolean isVolatile() {
         return (access_flags & ACC_VOLATILE) > 0;
     }
 
-    public boolean isTransient()
-    {
+    public boolean isTransient() {
         return (access_flags & ACC_TRANSIENT) > 0;
     }
 
-    public boolean isSynthetic()
-    {
+    public boolean isSynthetic() {
         return ((access_flags & ACC_SYNTHETIC) > 0) || isSynthetic;
     }
 
-    public boolean isEnum()
-    {
+    public boolean isEnum() {
         return (access_flags & ACC_ENUM) > 0;
     }
 }

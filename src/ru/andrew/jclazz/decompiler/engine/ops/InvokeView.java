@@ -1,18 +1,20 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.FieldDescriptor;
+import ru.andrew.jclazz.core.attributes.InnerClass;
+import ru.andrew.jclazz.core.code.ops.Invoke;
+import ru.andrew.jclazz.core.code.ops.Operation;
 import ru.andrew.jclazz.decompiler.*;
-
-import java.util.*;
-import java.util.ArrayList;
 import ru.andrew.jclazz.decompiler.engine.CodeItem;
 import ru.andrew.jclazz.decompiler.engine.LocalVariable;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
+import ru.andrew.jclazz.decompiler.engine.blocks.Condition;
 
-public class InvokeView extends OperationView
-{
+import java.util.ArrayList;
+import java.util.List;
+
+public class InvokeView extends OperationView {
     private String objectref;
     private List pushedParams;
 
@@ -29,12 +31,7 @@ public class InvokeView extends OperationView
     private String icMethodName;
     private InputStreamBuilder builder;
 
-    public InvokeView(Operation operation, MethodSourceView methodView) {
-        this(operation, methodView, new FileInputStreamBuilder());
-    }
-
-    public InvokeView(Operation operation, MethodSourceView methodView, InputStreamBuilder builder)
-    {
+    public InvokeView(Operation operation, MethodSourceView methodView, InputStreamBuilder builder) {
         super(operation, methodView);
         this.builder = builder;
         pushedParams = new ArrayList();
@@ -44,18 +41,13 @@ public class InvokeView extends OperationView
             objectref = ((Invoke) operation).getClassForStaticInvoke();
 
             // Inner Class support
-            if (methodView.getClazzView().isInnerClass() && ((Invoke) operation).getMethodName().startsWith("access$"))
-            {
+            if (methodView.getClazzView().isInnerClass() && ((Invoke) operation).getMethodName().startsWith("access$")) {
                 MethodSourceView m_ic = methodView.getClazzView().getOuterClazz().getSyntheticMethodForIC(((Invoke) operation).getMethodName());
-                if (m_ic != null && m_ic.getMethodNameForIC() != null)
-                {
+                if (m_ic != null && m_ic.getMethodNameForIC() != null) {
                     icMethodName = m_ic.getMethodNameForIC();
                     isICMethod = true;
-                }
-                else if (objectref.equals(methodView.getClazzView().getOuterClazz().getClazz().getThisClassInfo().getFullyQualifiedName()))
-                {
-                    if (m_ic != null && m_ic.isForIC())
-                    {
+                } else if (objectref.equals(methodView.getClazzView().getOuterClazz().getClazz().getThisClassInfo().getFullyQualifiedName())) {
+                    if (m_ic != null && m_ic.isForIC()) {
                         icFieldName = m_ic.getFieldNameForIC();
                         isICField = true;
                     }
@@ -64,8 +56,7 @@ public class InvokeView extends OperationView
         }
     }
 
-    public String source()
-    {
+    public String source() {
         /*
         if (isICField) return icFieldName;
 
@@ -227,27 +218,22 @@ public class InvokeView extends OperationView
         return null;
     }
 
-    public boolean isPush()
-    {
+    public boolean isPush() {
         return !"void".equals(((Invoke) operation).getMethodDescriptor().getReturnType().getBaseType()) || isConstructor;
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return !isPush();
     }
 
-    public String getPushType()
-    {
-        if ("<init>".equals(((Invoke) operation).getMethodName()))
-        {
+    public String getPushType() {
+        if ("<init>".equals(((Invoke) operation).getMethodName())) {
             return objectref;
         }
         return ((Invoke) operation).getReturnType();
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         List params = ((Invoke) operation).getMethodDescriptor().getParams();
         if (params != null && params.size() > 0)
@@ -321,16 +307,12 @@ public class InvokeView extends OperationView
          * */
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         List params = ((Invoke) operation).getMethodDescriptor().getParams();
-        if (params != null && params.size() > 0)
-        {
-            for (int ip = 0; ip < params.size(); ip++)
-            {
+        if (params != null && params.size() > 0) {
+            for (int ip = 0; ip < params.size(); ip++) {
                 OperationView pushOp = context.pop();
-                if (pushOp == null)
-                {
+                if (pushOp == null) {
                     throw new RuntimeException("Not enough pushs for invoke operation");
                 }
                 pushedParams.add(pushOp);
@@ -347,36 +329,29 @@ public class InvokeView extends OperationView
                 isConstructor = true;
 
                 // Inner Class support
-                if (((NewView) refOp).isICConstructor() && pushedParams.size() > 0)
-                {
+                if (((NewView) refOp).isICConstructor() && pushedParams.size() > 0) {
                     paramsAddition = 1;
                     pushedParams.remove(pushedParams.size() - 1);
                 }
-                if (((NewView) refOp).isACConstructor())
-                {
+                if (((NewView) refOp).isACConstructor()) {
                     isAnonymousConstructor = true;
                     anonymousClass = ((NewView) refOp).getAnonymousClass();
                     anonymousIndent = block.getIndent();
                 }
             }
-            if (refOp instanceof PushVariableView)
-            {
+            if (refOp instanceof PushVariableView) {
                 // TODO
                 //objectref = ((PushVariableView) refOp).source();
                 //objectref = ((PushVariableView) refOp).getLocalVariable().getName((int) getStartByte());
-            }
-            else
-            {
+            } else {
                 objectref = refOp.source3();
                 // Case If with assignment
                 CodeItem nextDup = block.getOperationAfter(refOp.getStartByte());
                 if (block instanceof Condition &&
                         nextDup instanceof DupView &&
-                        block.getLastOperation() instanceof IfView)
-                {
+                        block.getLastOperation() instanceof IfView) {
                     CodeItem nextPop = block.getOperationAfter(nextDup.getStartByte());
-                    if (nextPop instanceof PopView)
-                    {
+                    if (nextPop instanceof PopView) {
                         PopView popView = (PopView) nextPop;
                         LocalVariable popedLV = block.getLocalVariable(popView.getLocalVariableNumber(), null, (int) getStartByte());
                         //popedLV.setPrinted(true);
@@ -389,30 +364,25 @@ public class InvokeView extends OperationView
                     }
                 }
 
-                if (refOp instanceof CheckCastView)
-                {
+                if (refOp instanceof CheckCastView) {
                     objectref = "(" + objectref + ")";
                 }
             }
-            if ((((Invoke) operation).isSuperMethodInvoke()) && "this".equals(objectref))
-            {
+            if ((((Invoke) operation).isSuperMethodInvoke()) && "this".equals(objectref)) {
                 objectref = "super";
             }
         }
         buildView(refOp, pushedParams);
     }
 
-    private void buildView(OperationView opRef, List params)
-    {
+    private void buildView(OperationView opRef, List params) {
         List items = new ArrayList();
 
-        if (opRef instanceof PopView)
-        {
+        if (opRef instanceof PopView) {
             items.add("(");
         }
 
-        if (isICField) 
-        {
+        if (isICField) {
             view = new Object[]{icFieldName};
             context.push(this);
             return;
@@ -424,29 +394,23 @@ public class InvokeView extends OperationView
 //        }
 //
         boolean isInit = false;
-        if ("<init>".equals(((Invoke) operation).getMethodName()))
-        {
+        if ("<init>".equals(((Invoke) operation).getMethodName())) {
             isInit = true;
         }
         String anonymousClassAsString = "";
         AnonymousClazzSourceView csv = null;
-        if (isConstructor)
-        {
+        if (isConstructor) {
             items.add("new ");
             // Anonymous Class support ^
-            if (isAnonymousConstructor)
-            {
+            if (isAnonymousConstructor) {
                 String inname = anonymousClass.getInnerClass().getName();
                 String enclosingClassFileName = methodView.getClazz().getFileName();
                 String path = enclosingClassFileName.substring(0, enclosingClassFileName.lastIndexOf(System.getProperty("file.separator")) + 1);
                 Clazz innerClazz;
-                try
-                {
+                try {
                     String innerClassName = path + inname + ".class";
-                    innerClazz = new Clazz(innerClassName, builder.getInputStream(innerClassName));
-                }
-                catch (Exception e)
-                {
+                    innerClazz = new Clazz(innerClassName);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 csv = new AnonymousClazzSourceView(innerClazz, methodView.getClazzView());
@@ -461,59 +425,38 @@ public class InvokeView extends OperationView
                 items.add(objectref);
             }
             // Anonymous Class support v
-            else
-            {
+            else {
                 items.add(opRef);
             }
-        }
-        else
-        {
-            if (((Invoke) operation).isSuperMethodInvoke())
-            {
-                if (isInit)
-                {
+        } else {
+            if (((Invoke) operation).isSuperMethodInvoke()) {
+                if (isInit) {
                     // Do not print invokation of default constructor
-                    if (((Invoke) operation).getMethodDescriptor().getParams().size() > 0)
-                    {
+                    if (((Invoke) operation).getMethodDescriptor().getParams().size() > 0) {
                         items.add("super");
-                    }
-                    else
-                    {
+                    } else {
                         view = null;
                         return;
                     }
-                }
-                else
-                {
+                } else {
                     items.add("super." + ((Invoke) operation).getMethodName());
                 }
-            }
-            else
-            {
-                if (isInit)
-                {
+            } else {
+                if (isInit) {
                     items.add("this");
-                }
-                else
-                {
-                    if (!("this".equals(objectref) && ClazzSourceView.SUPPRESS_EXCESSED_THIS))
-                    {
+                } else {
+                    if (!("this".equals(objectref) && ClazzSourceView.SUPPRESS_EXCESSED_THIS)) {
                         if (getOpcode() == 184) // invokestatic
                         {
-                            if (!isICMethod)
-                            {
+                            if (!isICMethod) {
                                 items.add(alias(objectref));
                                 items.add(".");
                                 //sb.append(alias(objectref)).append(".");
                             }
-                        }
-                        else
-                        {
-                            if (!"this".equals(opRef.source3()))
-                            {
+                        } else {
+                            if (!"this".equals(opRef.source3())) {
                                 items.add(opRef);
-                                if (opRef instanceof PopView)
-                                {
+                                if (opRef instanceof PopView) {
                                     items.add(")");
                                 }
                                 items.add(".");
@@ -521,12 +464,9 @@ public class InvokeView extends OperationView
                         }
                     }
                     // Inner class support method invokation
-                    if (isICMethod)
-                    {
+                    if (isICMethod) {
                         items.add(icMethodName);
-                    }
-                    else
-                    {
+                    } else {
                         items.add(((Invoke) operation).getMethodName());
                     }
                 }
@@ -534,25 +474,20 @@ public class InvokeView extends OperationView
         }
         items.add("(");
 
-        if (params.size() > 0)
-        {
-            if ((params == null) || (params.size() + paramsAddition != ((Invoke) operation).getMethodDescriptor().getParams().size()))
-            {
+        if (params.size() > 0) {
+            if ((params == null) || (params.size() + paramsAddition != ((Invoke) operation).getMethodDescriptor().getParams().size())) {
                 throw new OperationException("Invoke: invalid parameters");
             }
             boolean firstParam = true;
-            for (int i = params.size() - 1; i >= 0; i--)
-            {
+            for (int i = params.size() - 1; i >= 0; i--) {
                 // Inner class method invokation support
                 if (i == params.size() - 1 && isICMethod) continue;
 
                 OperationView pushOp = (OperationView) params.get(i);
 
-                if (isAnonymousConstructor && csv != null)
-                {
+                if (isAnonymousConstructor && csv != null) {
                     int icParamCnt = csv.getInParamsCount();
-                    if (pushOp instanceof PushVariableView)
-                    {
+                    if (pushOp instanceof PushVariableView) {
                         LocalVariable lv = ((PushVariableView) pushOp).getLocalVariable();
                         lv.forceFinal();
                         ((AnonymousClazzSourceView) csv).putOuterMapping(params.size() - 1 - i, lv.getName());
@@ -560,30 +495,21 @@ public class InvokeView extends OperationView
                     if (i >= icParamCnt) continue;
                 }
 
-                if (!firstParam)
-                {
+                if (!firstParam) {
                     items.add(", ");
                 }
 
                 FieldDescriptor argDescriptor = (FieldDescriptor) ((Invoke) operation).getMethodDescriptor().getParams().get(params.size() + paramsAddition - i - 1);
-                if ("boolean".equals(argDescriptor.getBaseType()))
-                {
-                    if ("1".equals(pushOp.source3()))
-                    {
+                if ("boolean".equals(argDescriptor.getBaseType())) {
+                    if ("1".equals(pushOp.source3())) {
                         items.add("true");
-                    }
-                    else
-                    {
+                    } else {
                         items.add("false");
                     }
-                }
-                else
-                {
+                } else {
                     // Narrowing Primitive Conversions
-                    if (argDescriptor.isBaseType())
-                    {
-                        if (Block.widePrimitiveConversion(argDescriptor.getBaseType(), pushOp.getPushType()))
-                        {
+                    if (argDescriptor.isBaseType()) {
+                        if (Block.widePrimitiveConversion(argDescriptor.getBaseType(), pushOp.getPushType())) {
                             items.add("(" + argDescriptor.getBaseType() + ") ");
                         }
                     }
@@ -595,8 +521,7 @@ public class InvokeView extends OperationView
 
         items.add(")");
 
-        if (isAnonymousConstructor)
-        {
+        if (isAnonymousConstructor) {
             anonymousClassAsString = csv.getSource();
             items.add(anonymousClassAsString);
         }
@@ -604,8 +529,7 @@ public class InvokeView extends OperationView
         view = new Object[items.size()];
         view = items.toArray(view);
 
-        if (!"void".equals(((Invoke) operation).getMethodDescriptor().getReturnType().getBaseType()) || isConstructor)
-        {
+        if (!"void".equals(((Invoke) operation).getMethodDescriptor().getReturnType().getBaseType()) || isConstructor) {
             context.push(this);
         }
     }

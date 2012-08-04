@@ -1,37 +1,36 @@
 package ru.andrew.jclazz.decompiler.engine.blockdetectors;
 
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.engine.*;
-import ru.andrew.jclazz.decompiler.engine.ops.*;
+import ru.andrew.jclazz.decompiler.engine.CodeItem;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
+import ru.andrew.jclazz.decompiler.engine.blocks.Catch;
+import ru.andrew.jclazz.decompiler.engine.blocks.Loop;
+import ru.andrew.jclazz.decompiler.engine.blocks.Try;
+import ru.andrew.jclazz.decompiler.engine.ops.GoToView;
+import ru.andrew.jclazz.decompiler.engine.ops.IfView;
+import ru.andrew.jclazz.decompiler.engine.ops.NopView;
 
-import java.util.*;
+import java.util.List;
 
-public class BackLoopDetector implements Detector
-{
-    public void analyze(Block block)
-    {
+public class BackLoopDetector implements Detector {
+    public void analyze(Block block) {
         block.reset();
-        while (block.hasMoreOperations())
-        {
+        while (block.hasMoreOperations()) {
             CodeItem citem = block.next();
             if (!(citem instanceof IfView)) continue;
 
             IfView ifCond = (IfView) citem;
-            if (!ifCond.isForwardBranch())
-            {
+            if (!ifCond.isForwardBranch()) {
                 createBackLoop(block, ifCond);
             }
         }
     }
 
-    private void createBackLoop(Block block, IfView ifCond)
-    {
+    private void createBackLoop(Block block, IfView ifCond) {
         CodeItem preLoop = block.getOperationPriorTo(ifCond.getTargetOperation());
         boolean printCondition = false;
         if (preLoop != null && preLoop instanceof GoToView &&
-            ((GoToView) preLoop).isForwardBranch() &&
-            ((GoToView) preLoop).getTargetOperation() < ifCond.getStartByte())
-        {
+                ((GoToView) preLoop).isForwardBranch() &&
+                ((GoToView) preLoop).getTargetOperation() < ifCond.getStartByte()) {
             printCondition = true;
             block.removeOperation(preLoop.getStartByte());
             // TODO set label for conditions
@@ -42,18 +41,15 @@ public class BackLoopDetector implements Detector
 
         //try-catch inside loop with break in try block results in loop block inside catch
         boolean isLoopCreated = false;
-        if (block instanceof Catch)
-        {
+        if (block instanceof Catch) {
             Try tryBlock = (Try) block.getParent().getOperationPriorTo(block.getStartByte());
-            if (tryBlock.getStartByte() >= ifCond.getTargetOperation())
-            {
+            if (tryBlock.getStartByte() >= ifCond.getTargetOperation()) {
                 block.getParent().createSubBlock(ifCond.getTargetOperation(), ifCond.getStartByte(), loop);
                 isLoopCreated = true;
             }
         }
 
-        if (!isLoopCreated)
-        {
+        if (!isLoopCreated) {
             block.createSubBlock(ifCond.getTargetOperation(), ifCond.getStartByte(), loop);
         }
 
@@ -61,9 +57,9 @@ public class BackLoopDetector implements Detector
         loop.addAndConditions(firstConditions); // TODO smth with multiple conditions
     }
 
-    public Loop collapseBackLoops(Block block)
-    {
-        if (!(block instanceof Loop) || (block.size() > 2) || (block.size() == 0) || !(block.getFirstOperation() instanceof Loop)) return null;
+    public Loop collapseBackLoops(Block block) {
+        if (!(block instanceof Loop) || (block.size() > 2) || (block.size() == 0) || !(block.getFirstOperation() instanceof Loop))
+            return null;
         if ((block.size() == 2) && !(block.getLastOperation() instanceof NopView)) return null;
 
         Loop loop = ((Loop) block.getFirstOperation());

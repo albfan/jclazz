@@ -1,40 +1,35 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.engine.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.core.code.ops.Pop;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.LocalVariable;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class PopView extends OperationView
-{
+public class PopView extends OperationView {
     //private String pushedValue;
     private LocalVariable lvar;
 
     //private String arrayRef;
     //private String index;
 
-    public PopView(Operation operation, MethodSourceView methodView)
-    {
+    public PopView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return null;
     }
 
-    public int getLocalVariableNumber()
-    {
+    public int getLocalVariableNumber() {
         return ((Pop) operation).getLocalVariableNumber();
     }
 
-    public LocalVariable getLocalVariable()
-    {
+    public LocalVariable getLocalVariable() {
         return lvar;
     }
 
-    public String source()
-    {
+    public String source() {
         /*
         if (lvar == null && arrayRef == null && index == null)
         {
@@ -64,8 +59,7 @@ public class PopView extends OperationView
         return null;
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         if (getOpcode() >= 79 && getOpcode() <= 86)
         {
@@ -114,36 +108,30 @@ public class PopView extends OperationView
          */
     }
 
-    public void analyze2(Block block)
-    {
-        if (getOpcode() >= 79 && getOpcode() <= 86)
-        {
+    public void analyze2(Block block) {
+        if (getOpcode() >= 79 && getOpcode() <= 86) {
             OperationView val_ci = context.pop();
             OperationView ind_ci = context.pop();
             OperationView arr_ci = context.pop();
             view = new Object[]{arr_ci, "[", ind_ci, "] = ", val_ci};
             // Support array initialization : new Object[]{...}
             //if (arrayRef.startsWith("new "))
-            if (context.stackSize() > 0)
-            {
+            if (context.stackSize() > 0) {
                 OperationView prev = context.peek();
-                if (prev instanceof NewArrayView)
-                {
+                if (prev instanceof NewArrayView) {
                     ((NewArrayView) prev).addInitVariable(val_ci);
                     block.removeCurrentOperation();
                 }
             }
-        }
-        else
-        {
+        } else {
             OperationView pushOp = context.pop();
             if (pushOp == null) {
                 return;
+
             }
-            if (getOpcode() >= 54 && getOpcode() <= 78)
-            {
+            if (getOpcode() >= 54 && getOpcode() <= 78) {
                 lvar = block.getLocalVariable(((Pop) operation).getLocalVariableNumber(), pushOp.getPushType(), (int) getStartByte());
-                
+
                 //if (pushOp.ref != null)
                 //{
                 //    pushOp.ref.setLocalVariable(lvar);
@@ -151,23 +139,20 @@ public class PopView extends OperationView
                 // TODO shifts for debug variables
                 lvar.ensure((int) getStartByte() + (getOpcode() <= 58 ? 2 : 1));
 
-                if ("boolean".equals(lvar.getType()) && pushOp instanceof PushConstView)
-                {
+                if ("boolean".equals(lvar.getType()) && pushOp instanceof PushConstView) {
                     ((PushConstView) pushOp).forceBoolean();
                 }
                 view = new Object[]{lvar.getView(), " = ", pushOp};
             }
             if (getOpcode() == 87)  // pop
             {
-                if (pushOp instanceof InvokeView)
-                {
+                if (pushOp instanceof InvokeView) {
                     view = new Object[]{pushOp};
                 }
             }
             if (getOpcode() == 88)  // pop2
             {
-                if (pushOp instanceof InvokeView)
-                {
+                if (pushOp instanceof InvokeView) {
                     view = new Object[]{pushOp};
                 }
 

@@ -1,45 +1,39 @@
 package ru.andrew.jclazz.core.constants;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public class CONSTANT_Utf8 extends CONSTANT
-{
+public class CONSTANT_Utf8 extends CONSTANT {
     private String utf8m;
 
-    protected CONSTANT_Utf8(int num, int tag, Clazz clazz)
-    {
+    protected CONSTANT_Utf8(int num, int tag, Clazz clazz) {
         super(num, tag, clazz);
     }
 
-    public void load(ClazzInputStream cis) throws IOException
-    {
+    public void load(ClazzInputStream cis) throws IOException {
         utf8m = cis.readUTF();
     }
 
-    public void update() throws ClazzException
-    {
+    public void update() throws ClazzException {
     }
 
-    public String getType()
-    {
+    public String getType() {
         return "java.lang.String";
     }
 
-    public String getString()
-    {
+    public String getString() {
         return utf8m;
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return utf8m;
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         super.store(cos);
 
         cos.writeUTF(utf8m);

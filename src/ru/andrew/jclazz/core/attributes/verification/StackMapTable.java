@@ -1,54 +1,47 @@
 package ru.andrew.jclazz.core.attributes.verification;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.constants.*;
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.attributes.AttributeInfo;
+import ru.andrew.jclazz.core.constants.CONSTANT_Utf8;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public class StackMapTable extends AttributeInfo
-{
+public class StackMapTable extends AttributeInfo {
     private StackMapFrame[] stack_map_frame;
 
-    public StackMapTable(CONSTANT_Utf8 attributeName, Clazz clazz)
-    {
+    public StackMapTable(CONSTANT_Utf8 attributeName, Clazz clazz) {
         super(attributeName, clazz);
     }
 
-    public void load(ClazzInputStream cis) throws IOException, ClazzException
-    {
+    public void load(ClazzInputStream cis) throws IOException, ClazzException {
         attributeLength = (int) cis.readU4();
-        
+
         int number_of_entries = cis.readU2();
         stack_map_frame = new StackMapFrame[number_of_entries];
-        for (int i = 0; i < number_of_entries; i++)
-        {
+        for (int i = 0; i < number_of_entries; i++) {
             stack_map_frame[i] = StackMapFrame.loadStackMapFrame(cis, clazz);
         }
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU4(attributeLength);
         cos.writeU2(stack_map_frame.length);
-        for (int i = 0; i < stack_map_frame.length; i++)
-        {
+        for (int i = 0; i < stack_map_frame.length; i++) {
             stack_map_frame[i].store(cos);
         }
     }
 
-    public StackMapFrame[] getStackMapFrames()
-    {
+    public StackMapFrame[] getStackMapFrames() {
         return stack_map_frame;
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuffer sb = new StringBuffer(ATTR);
         sb.append("StackMapTable: \n");
-        for (int i = 0; i < stack_map_frame.length; i++)
-        {
+        for (int i = 0; i < stack_map_frame.length; i++) {
             sb.append(INDENT).append(stack_map_frame[i].toString()).append("\n");
         }
         return sb.toString();

@@ -1,9 +1,13 @@
 package ru.andrew.jclazz.decompiler.engine.blocks;
 
-import ru.andrew.jclazz.decompiler.engine.ops.*;
-import ru.andrew.jclazz.decompiler.engine.*;
+import ru.andrew.jclazz.decompiler.engine.CodeItem;
+import ru.andrew.jclazz.decompiler.engine.ops.GoToView;
+import ru.andrew.jclazz.decompiler.engine.ops.IfView;
+import ru.andrew.jclazz.decompiler.engine.ops.OperationView;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class Loop extends Block {
     private List andConditions = new ArrayList();

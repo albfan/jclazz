@@ -5,26 +5,21 @@ TypeSignature:
    FieldTypeSignature
    BaseType
  */
-public class TypeSignature
-{
+public class TypeSignature {
     private FieldTypeSignature fieldType;
     private String baseType;
 
-    private TypeSignature(FieldTypeSignature fieldType)
-    {
+    private TypeSignature(FieldTypeSignature fieldType) {
         this.fieldType = fieldType;
     }
 
-    private TypeSignature(String baseType)
-    {
+    private TypeSignature(String baseType) {
         this.baseType = baseType;
     }
 
-    public static TypeSignature parse(StringBuffer sign)
-    {
+    public static TypeSignature parse(StringBuffer sign) {
         // Loading with FieldTypeSignature
-        if ((sign.charAt(0) == 'L') || (sign.charAt(0) == '[') || (sign.charAt(0) == 'T'))
-        {
+        if ((sign.charAt(0) == 'L') || (sign.charAt(0) == '[') || (sign.charAt(0) == 'T')) {
             return new TypeSignature(FieldTypeSignature.parse(sign));
         }
 
@@ -32,8 +27,7 @@ public class TypeSignature
         char bt = sign.charAt(0);
         sign.deleteCharAt(0);
         String base;
-        switch (bt)
-        {
+        switch (bt) {
             case 'B':
                 base = "byte";
                 break;
@@ -64,15 +58,13 @@ public class TypeSignature
         return new TypeSignature(base);
     }
 
-    public FieldTypeSignature getFieldType()
-    {
+    public FieldTypeSignature getFieldType() {
         return fieldType;
     }
 
-    public String getBaseType()
-    {
+    public String getBaseType() {
         return baseType;
     }
 
-    
+
 }

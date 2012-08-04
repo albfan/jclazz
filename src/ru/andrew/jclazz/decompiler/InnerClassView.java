@@ -1,34 +1,28 @@
 package ru.andrew.jclazz.decompiler;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.InnerClass;
 
-public class InnerClassView
-{
+public class InnerClassView {
     private InnerClass innerClass;
     private ClazzSourceView clazzView;
 
-    public InnerClassView(InnerClass innerClass)
-    {
+    public InnerClassView(InnerClass innerClass) {
         this.innerClass = innerClass;
     }
 
-    public ClazzSourceView getClazzView()
-    {
+    public ClazzSourceView getClazzView() {
         return clazzView;
     }
 
-    public void setClazzView(ClazzSourceView clazzView)
-    {
+    public void setClazzView(ClazzSourceView clazzView) {
         this.clazzView = clazzView;
     }
 
-    public String getInnerFQN()
-    {
+    public String getInnerFQN() {
         return innerClass.getInnerClass() == null ? null : innerClass.getInnerClass().getFullyQualifiedName();
     }
 
-    public InnerClass getInnerClass()
-    {
+    public InnerClass getInnerClass() {
         return innerClass;
     }
 }

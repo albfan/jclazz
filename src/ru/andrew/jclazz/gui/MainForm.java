@@ -2,21 +2,17 @@ package ru.andrew.jclazz.gui;
 
 import ru.andrew.jclazz.core.Clazz;
 import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.decompiler.FileInputStreamBuilder;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
-public class MainForm extends JFrame implements ActionListener, TreeSelectionListener {
-    private static final String A_EXIT = "EXIT";
-    private static final String A_OPEN = "OPEN";
-    private static final String A_DECOMPILE = "DECOMPILE";
+public class MainForm extends JFrame {
 
     private Clazz clazz;
     private File lastOpenedDirectory = null;
@@ -37,8 +33,7 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
 
     public MainForm() {
         try {
-            UIManager.setLookAndFeel(
-                    UIManager.getCrossPlatformLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -50,26 +45,16 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
         }
         initComponents();
 
-        tree.addTreeSelectionListener(this);
+        tree.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent tse) {
+                ClazzTreeNode node = (ClazzTreeNode) tse.getPath().getLastPathComponent();
+                textPane.setText(node.getDescription());
+            }
+        });
         tree.setCellRenderer(new ClazzTreeNodeCellRenderer());
         tree.setModel(new DefaultTreeModel(null));
         setContentPane(mainPanel);
-    }
-
-    public void valueChanged(TreeSelectionEvent tse) {
-        ClazzTreeNode node = (ClazzTreeNode) tse.getPath().getLastPathComponent();
-        textPane.setText(node.getDescription());
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        String cmd = e.getActionCommand();
-        if (A_EXIT.equals(cmd)) {
-            System.exit(0);
-        } else if (A_OPEN.equals(cmd)) {
-            openClass();
-        } else if (A_DECOMPILE.equals(cmd)) {
-            openDecompileWindow();
-        }
     }
 
     protected void openClass() {
@@ -95,7 +80,7 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
         }
         try {
             lastOpenedDirectory = chooser.getSelectedFile().getParentFile();
-            this.clazz = new Clazz(chooser.getSelectedFile().getAbsolutePath());
+            this.clazz = new Clazz(chooser.getSelectedFile().getAbsolutePath(), new FileInputStreamBuilder());
         } catch (ClazzException ce) {
             JOptionPane.showMessageDialog(this, ce.toString(), "Clazz Exception", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
@@ -179,7 +164,7 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
         openMenuItem.setText("Open");
         openMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openMenuItemActionPerformed(evt);
+                openClass();
             }
         });
         fileMenu.add(openMenuItem);
@@ -188,7 +173,7 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitMenuItemActionPerformed(evt);
+                System.exit(0);
             }
         });
         fileMenu.add(exitMenuItem);
@@ -201,7 +186,7 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
         decompileMenuItem.setEnabled(false);
         decompileMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                decompileMenuItemActionPerformed(evt);
+                openDecompileWindow();
             }
         });
         operationsMenu.add(decompileMenuItem);
@@ -211,18 +196,6 @@ public class MainForm extends JFrame implements ActionListener, TreeSelectionLis
         setJMenuBar(menuBar);
 
         pack();
-    }
-
-    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        System.exit(0);
-    }
-
-    private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        openClass();
-    }
-
-    private void decompileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        openDecompileWindow();
     }
 
     public static void main(String args[]) {

@@ -1,59 +1,49 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.code.ops.*;
+import ru.andrew.jclazz.core.attributes.InnerClass;
+import ru.andrew.jclazz.core.code.ops.New;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class NewView extends OperationView
-{
+public class NewView extends OperationView {
     private boolean isICConstructor = false;
     private boolean isACConstructor = false;
     private InnerClass anonymousClass;
 
     private String clazzName;
 
-    public NewView(Operation operation, MethodSourceView methodView)
-    {
+    public NewView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return clazzName;
     }
 
-    public boolean isICConstructor()
-    {
+    public boolean isICConstructor() {
         return isICConstructor;
     }
 
-    public boolean isACConstructor()
-    {
+    public boolean isACConstructor() {
         return isACConstructor;
     }
 
-    public InnerClass getAnonymousClass()
-    {
+    public InnerClass getAnonymousClass() {
         return anonymousClass;
     }
 
-    public String source()
-    {
+    public String source() {
         return alias(clazzName);
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         // Inner Class support
         clazzName = ((New) operation).getNewType();
-        if (clazzName.indexOf('$') != -1)
-        {
+        if (clazzName.indexOf('$') != -1) {
             InnerClass ic = methodView.getClazzView().getInnerClass(clazzName);
-            if (ic != null)
-            {
-                if (ic.getInnerName() == null)
-                {
+            if (ic != null) {
+                if (ic.getInnerName() == null) {
                     isACConstructor = true;
                     anonymousClass = ic;
                 }
@@ -63,17 +53,13 @@ public class NewView extends OperationView
         }
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         // Inner Class support
         clazzName = ((New) operation).getNewType();
-        if (clazzName.indexOf('$') != -1)
-        {
+        if (clazzName.indexOf('$') != -1) {
             InnerClass ic = methodView.getClazzView().getInnerClass(clazzName);
-            if (ic != null)
-            {
-                if (ic.getInnerName() == null)
-                {
+            if (ic != null) {
+                if (ic.getInnerName() == null) {
                     isACConstructor = true;
                     anonymousClass = ic;
                 }
@@ -86,8 +72,7 @@ public class NewView extends OperationView
         context.push(this);
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

@@ -1,30 +1,26 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.CheckCast;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class CheckCastView extends OperationView
-{
+public class CheckCastView extends OperationView {
     private String var;
 
-    public CheckCastView(Operation operation, MethodSourceView methodView)
-    {
+    public CheckCastView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return ((CheckCast) operation).getCastClass();
     }
 
-    public String source()
-    {
+    public String source() {
         return "(" + alias(((CheckCast) operation).getCastClass()) + ") " + var;
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         OperationView prev = block.removePriorPushOperation();
 
@@ -43,16 +39,13 @@ public class CheckCastView extends OperationView
          * */
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         OperationView prev = context.pop();
 
         // Strange behaviour, found on jre 1.6: doubling of identical checkcast
-        if (prev instanceof CheckCastView)
-        {
+        if (prev instanceof CheckCastView) {
             CheckCastView cc = (CheckCastView) prev;
-            if (((CheckCast) operation).getCastClass().equals(cc.getPushType()))
-            {
+            if (((CheckCast) operation).getCastClass().equals(cc.getPushType())) {
                 view = prev.view;
                 context.push(this);
                 return;
@@ -63,8 +56,7 @@ public class CheckCastView extends OperationView
         context.push(this);
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

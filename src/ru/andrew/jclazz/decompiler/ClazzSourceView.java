@@ -1,17 +1,22 @@
 package ru.andrew.jclazz.decompiler;
 
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.FieldInfo;
+import ru.andrew.jclazz.core.MethodInfo;
+import ru.andrew.jclazz.core.attributes.InnerClass;
 
-import java.util.*;
 import java.io.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class ClazzSourceView extends SourceView {
     public static final String WITH_LINE_NUMBERS = "--ln";
     public static boolean SUPPRESS_EXCESSED_THIS = true;
 
     protected Clazz clazz;
-    private InputStreamBuilder builder;
+    protected InputStreamBuilder builder;
     protected boolean isInnerClass = false;
     protected ClazzSourceView outerClazz;
 
@@ -21,20 +26,20 @@ public class ClazzSourceView extends SourceView {
     protected boolean printAsAnonymous = false;
 
     public ClazzSourceView(Clazz clazz, ClazzSourceView outerClazz) {
-        this(clazz, outerClazz, new FileInputStreamBuilder());
-    }
-
-    public ClazzSourceView(Clazz clazz, ClazzSourceView outerClazz, InputStreamBuilder builder) {
         super();
 
         this.clazz = clazz;
-        this.builder = builder;
+        this.builder = clazz.getBuilder();
         if (outerClazz != null) {
             isInnerClass = true;
             this.outerClazz = outerClazz;
         }
 
         loadSource();
+    }
+
+    public InputStreamBuilder getBuilder() {
+        return builder;
     }
 
     protected void printClassSignature(PrintWriter pw) {
@@ -146,7 +151,7 @@ public class ClazzSourceView extends SourceView {
                 Clazz innerClazz;
                 try {
                     String innerClassName = path + inname + ".class";
-                    innerClazz = new Clazz(innerClassName, builder.getInputStream(innerClassName));
+                    innerClazz = new Clazz(innerClassName, builder);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -185,7 +190,7 @@ public class ClazzSourceView extends SourceView {
     }
 
     protected MethodSourceView createMethodView(MethodInfo method) {
-        MethodSourceView msv = new MethodSourceView(method, this, builder);
+        MethodSourceView msv = new MethodSourceView(method, this);
         msv.setIndent("    ");
         return msv;
     }
@@ -196,7 +201,9 @@ public class ClazzSourceView extends SourceView {
         // First load synthetic methods
         int methodsNum = 0;
         for (int i = 0; i < clazz.getMethods().length; i++) {
-            if (!clazz.getMethods()[i].isSynthetic()) continue;
+            if (!clazz.getMethods()[i].isSynthetic()) {
+                continue;
+            }
 
             MethodSourceView msv = createMethodView(clazz.getMethods()[i]);
             methodViews[methodsNum] = msv;
@@ -207,12 +214,25 @@ public class ClazzSourceView extends SourceView {
 
         // Load all other methods
         for (int i = 0; i < clazz.getMethods().length; i++) {
-            if (clazz.getMethods()[i].isSynthetic()) continue;
-            MethodSourceView msv = createMethodView(clazz.getMethods()[i]);
-            methodViews[methodsNum] = msv;
-            methodsNum++;
+            MethodInfo method = clazz.getMethods()[i];
+            if (method.isSynthetic()) {
+                continue;
+            }
+            MethodSourceView msv = null;
+            try {
+                msv = createMethodView(method);
+                methodViews[methodsNum] = msv;
+                methodsNum++;
 
-            printMethod(pw, msv);
+                printMethod(pw, msv);
+            } catch (Exception e) {
+                pw.flush();
+                pw.println("/*");
+                pw.println("error decompiling: "+method.getName());
+                pw.println();
+                e.printStackTrace(pw);
+                pw.println("*/");
+            }
         }
     }
 

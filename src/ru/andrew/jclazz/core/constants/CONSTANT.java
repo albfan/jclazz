@@ -1,30 +1,28 @@
 package ru.andrew.jclazz.core.constants;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public abstract class CONSTANT
-{
+public abstract class CONSTANT {
     protected int index;
     protected int tag;
     protected Clazz clazz;
 
-    protected CONSTANT(int num, int tag, Clazz clazz)
-    {
+    protected CONSTANT(int num, int tag, Clazz clazz) {
         this.index = num;
         this.tag = tag;
         this.clazz = clazz;
     }
 
-    public int getIndex()
-    {
+    public int getIndex() {
         return index;
     }
 
-    public Clazz getClazz()
-    {
+    public Clazz getClazz() {
         return clazz;
     }
 
@@ -41,8 +39,7 @@ public abstract class CONSTANT
 
     // For storing constants
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU1(tag);
     }
 }

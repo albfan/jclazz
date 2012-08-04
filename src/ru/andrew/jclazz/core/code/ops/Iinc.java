@@ -1,19 +1,17 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.Code;
 
 /**
  * Opcodes: 132<BR>
  * Parameters: index(1), const(1)<BR>
  * Operand stack: no change<BR>
  */
-public class Iinc extends Operation
-{
+public class Iinc extends Operation {
     private int localVariableNumber;
     private int incValue;
 
-    public Iinc(int opcode, long start_byte, Code code)
-    {
+    public Iinc(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         localVariableNumber = params[0];
@@ -21,26 +19,22 @@ public class Iinc extends Operation
     }
 
     //wide iinc
-    public Iinc(Wide woper)
-    {
+    public Iinc(Wide woper) {
         super(132, woper.getStartByte(), woper.getCode(), false);
 
         this.localVariableNumber = woper.getLocalVariableNumber();
         this.incValue = woper.getIncrementValue();
     }
 
-    public int getLocalVariableNumber()
-    {
+    public int getLocalVariableNumber() {
         return localVariableNumber;
     }
 
-    public int getIncValue()
-    {
+    public int getIncValue() {
         return incValue;
     }
 
-    public String asString()
-    {
+    public String asString() {
         return start_byte + " " + opcode.getMnemonic() + " LV-" + localVariableNumber + " by " + incValue;
     }
 }

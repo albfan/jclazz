@@ -1,9 +1,8 @@
 package ru.andrew.jclazz.decompiler.engine;
 
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public interface CodeItem
-{
+public interface CodeItem {
     public long getStartByte();
 
     public void analyze(Block block);

@@ -1,15 +1,14 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.attributes.Code;
+import ru.andrew.jclazz.core.constants.CONSTANT_Class;
 
 /**
  * Opcodes: 188, 189<BR>
  * Parameters: type(1) for newarray(188), class(2) for anewarray(189)<BR>
  * Operand stack: count => arrayref<BR>
  */
-public class NewArray extends PushOperation
-{
+public class NewArray extends PushOperation {
     public static final int T_BOOLEAN = 4;
     public static final int T_CHAR = 5;
     public static final int T_FLOAT = 6;
@@ -22,14 +21,12 @@ public class NewArray extends PushOperation
     private String baseType;
     private String classType;
 
-    public NewArray(int opcode, long start_byte, Code code)
-    {
+    public NewArray(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         if (opcode == 188)      // newarray
         {
-            switch(params[0])
-            {
+            switch (params[0]) {
                 case T_BOOLEAN:
                     baseType = "boolean";
                     break;
@@ -55,29 +52,22 @@ public class NewArray extends PushOperation
                     baseType = "long";
                     break;
             }
-        }
-        else
-        {
+        } else {
             classType = ((CONSTANT_Class) code.getClazz().getConstant_pool()[(params[0] << 8) | params[1]]).getFullyQualifiedName();
         }
     }
 
-    public String getNewArrayType()
-    {
+    public String getNewArrayType() {
         return (baseType != null ? baseType : classType);
     }
 
-    public String asString()
-    {
+    public String asString() {
         StringBuffer sb = new StringBuffer();
         sb.append(start_byte).append(" ").append(opcode.getMnemonic());
         sb.append(" of ");
-        if (baseType != null)
-        {
+        if (baseType != null) {
             sb.append(baseType);
-        }
-        else
-        {
+        } else {
             sb.append(classType);
         }
         return sb.toString();

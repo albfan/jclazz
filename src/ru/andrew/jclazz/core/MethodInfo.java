@@ -2,15 +2,15 @@ package ru.andrew.jclazz.core;
 
 import ru.andrew.jclazz.core.attributes.*;
 import ru.andrew.jclazz.core.attributes.Deprecated;
-import ru.andrew.jclazz.core.constants.*;
-import ru.andrew.jclazz.core.signature.*;
-import ru.andrew.jclazz.core.io.*;
+import ru.andrew.jclazz.core.constants.CONSTANT_Utf8;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
+import ru.andrew.jclazz.core.signature.MethodSignature;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.List;
 
-public class MethodInfo
-{
+public class MethodInfo {
     public static final String INIT_METHOD = "<init>";
     public static final String CLASS_INIT_METHOD = "<clinit>";
 
@@ -41,8 +41,7 @@ public class MethodInfo
     private MethodSignature signature;
     private Clazz clazz;
 
-    public void load(ClazzInputStream cis, Clazz clazz) throws ClazzException, IOException
-    {
+    public void load(ClazzInputStream cis, Clazz clazz) throws ClazzException, IOException {
         this.clazz = clazz;
 
         access_flags = cis.readU2();
@@ -58,176 +57,141 @@ public class MethodInfo
 
         int attributes_count = cis.readU2();
         attributes = new AttributeInfo[attributes_count];
-        for (int i = 0; i < attributes_count; i++)
-        {
+        for (int i = 0; i < attributes_count; i++) {
             AttributeInfo attribute = AttributesLoader.loadAttribute(cis, clazz, this);
             attributes[i] = attribute;
-            if (attribute instanceof Deprecated)
-            {
+            if (attribute instanceof Deprecated) {
                 isDeprecated = true;
-            }
-            else if (attribute instanceof Synthetic)
-            {
+            } else if (attribute instanceof Synthetic) {
                 isSynthetic = true;
-            }
-            else if (attribute instanceof Exceptions)
-            {
-                if (exc != null) throw new ClazzException("Doubling exceptions attribute in method");
+            } else if (attribute instanceof Exceptions) {
+                if (exc != null) {
+                    throw new ClazzException("Doubling exceptions attribute in method");
+                }
                 exc = (Exceptions) attribute;
-            }
-            else if (attribute instanceof Code)
-            {
-                if (code != null) throw new ClazzException("Doubling code attribute in method");
+            } else if (attribute instanceof Code) {
+                if (code != null) {
+                    throw new ClazzException("Doubling code attribute in method");
+                }
                 code = (Code) attribute;
                 operations = code.getOperations();
-            }
-            else if (attribute instanceof Signature)
-            {
+            } else if (attribute instanceof Signature) {
                 signature = new MethodSignature(((Signature) attribute).getSignature());
-            }
-            else
-            {
+            } else {
                 // TODO
                 System.out.println("METHOD INFO : attribute : " + attribute.getClass() + ", " + attribute);
             }
         }
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU2(access_flags);
         cos.writeU2(name.getIndex());
         cos.writeU2(descriptorUTF8.getIndex());
-        for (int i = 0; i < attributes.length; i++)
-        {
+        for (int i = 0; i < attributes.length; i++) {
             attributes[i].store(cos);
         }
     }
 
-    public int getAccessFlags()
-    {
+    public int getAccessFlags() {
         return access_flags;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name.getString();
     }
 
-    public MethodDescriptor getDescriptor()
-    {
+    public MethodDescriptor getDescriptor() {
         return descriptor;
     }
 
-    public MethodSignature getSignature()
-    {
+    public MethodSignature getSignature() {
         return signature;
     }
 
-    public Clazz getClazz()
-    {
+    public Clazz getClazz() {
         return clazz;
     }
 
-    public boolean isDeprecated()
-    {
+    public boolean isDeprecated() {
         return isDeprecated;
     }
 
-    public Exceptions getExceptions()
-    {
+    public Exceptions getExceptions() {
         return exc;
     }
 
-    public Code getCodeBlock()
-    {
+    public Code getCodeBlock() {
         return code;
     }
 
-    public List getOperations()
-    {
+    public List getOperations() {
         return operations;
     }
 
-    public LineNumberTable getLineNumberTable()
-    {
+    public LineNumberTable getLineNumberTable() {
         return code != null ? code.getLineNumberTable() : null;
     }
 
-    public AttributeInfo[] getAttributes()
-    {
+    public AttributeInfo[] getAttributes() {
         return attributes;
     }
 
-    public boolean isInit()
-    {
+    public boolean isInit() {
         return INIT_METHOD.equals(name.getString());
     }
 
-    public boolean isStaticInit()
-    {
+    public boolean isStaticInit() {
         return CLASS_INIT_METHOD.equals(name.getString());
     }
 
     // Access checks
 
-    public boolean isPublic()
-    {
+    public boolean isPublic() {
         return (access_flags & ACC_PUBLIC) > 0;
     }
 
-    public boolean isPrivate()
-    {
+    public boolean isPrivate() {
         return (access_flags & ACC_PRIVATE) > 0;
     }
 
-    public boolean isProtected()
-    {
+    public boolean isProtected() {
         return (access_flags & ACC_PROTECTED) > 0;
     }
 
-    public boolean isStatic()
-    {
+    public boolean isStatic() {
         return (access_flags & ACC_STATIC) > 0;
     }
 
-    public boolean isFinal()
-    {
+    public boolean isFinal() {
         return (access_flags & ACC_FINAL) > 0;
     }
 
-    public boolean isSynchronized()
-    {
+    public boolean isSynchronized() {
         return (access_flags & ACC_SYNCHRONIZED) > 0;
     }
 
-    public boolean isNative()
-    {
+    public boolean isNative() {
         return (access_flags & ACC_NATIVE) > 0;
     }
 
-    public boolean isAbstract()
-    {
+    public boolean isAbstract() {
         return (access_flags & ACC_ABSTRACT) > 0;
     }
 
-    public boolean isStrictFP()
-    {
+    public boolean isStrictFP() {
         return (access_flags & ACC_STRICT) > 0;
     }
 
-    public boolean isSynthetic()
-    {
+    public boolean isSynthetic() {
         return ((access_flags & ACC_SYNTHETIC) > 0) || isSynthetic;
     }
 
-    public boolean isBridge()
-    {
+    public boolean isBridge() {
         return (access_flags & ACC_BRIDGE) > 0;
     }
 
-    public boolean isVarargs()
-    {
+    public boolean isVarargs() {
         return (access_flags & ACC_VARARGS) > 0;
     }
 }

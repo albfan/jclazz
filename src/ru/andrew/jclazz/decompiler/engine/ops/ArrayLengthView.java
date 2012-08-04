@@ -1,30 +1,26 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.ArrayLength;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class ArrayLengthView extends OperationView
-{
+public class ArrayLengthView extends OperationView {
     private String arrayRef;
 
-    public ArrayLengthView(Operation operation, MethodSourceView methodView)
-    {
+    public ArrayLengthView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String source()
-    {
+    public String source() {
         return arrayRef + ".length";
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return ((ArrayLength) operation).getResultType();
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         /*
         OperationView prev = block.removePriorPushOperation();
         arrayRef = prev.source();
@@ -35,15 +31,13 @@ public class ArrayLengthView extends OperationView
          * */
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         OperationView prev = context.pop();
         view = new Object[]{prev, ".length"};
         context.push(this);
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

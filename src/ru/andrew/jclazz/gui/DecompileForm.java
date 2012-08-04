@@ -3,6 +3,7 @@ package ru.andrew.jclazz.gui;
 import ru.andrew.jclazz.core.Clazz;
 import ru.andrew.jclazz.decompiler.ClazzSourceView;
 import ru.andrew.jclazz.decompiler.ClazzSourceViewFactory;
+import ru.andrew.jclazz.decompiler.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DecompileForm extends JDialog implements ClipboardOwner {
@@ -32,18 +34,22 @@ public class DecompileForm extends JDialog implements ClipboardOwner {
         setContentPane(decompilePanel);
     }
 
-    public void lostOwnership(Clipboard clipboard, Transferable contents) { }
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+    }
 
     public void setClazz(Clazz clazz) {
         this.clazz = clazz;
         setTitle(clazz.getThisClassInfo().getFullyQualifiedName());
 
-        decompile(null);
+        HashMap params = new HashMap();
+        params.put(ClazzSourceView.WITH_LINE_NUMBERS, "yes");
+        params.put(ClazzSourceView.SUPPRESS_EXCESSED_THIS, "yes");
+        decompile(params);
     }
 
     private void decompile(Map params) {
         try {
-            ClazzSourceView csv = ClazzSourceViewFactory.getFileClazzSourceView(clazz);
+            ClazzSourceView csv = ClazzSourceViewFactory.getClazzSourceView(clazz);
             csv.setDecompileParameters(params);
             source = csv.getSource();
 
@@ -56,7 +62,7 @@ public class DecompileForm extends JDialog implements ClipboardOwner {
             sourcePane.setText(sourceText);
             sourcePane.setCaretPosition(0);
         } catch (Throwable ex) {
-            if (Boolean.parseBoolean(System.getProperty("debug", "false"))) {
+            if (Utils.hasDebug()) {
                 ex.printStackTrace();
             }
             sourcePane.setText("Exception occured while decompiling");

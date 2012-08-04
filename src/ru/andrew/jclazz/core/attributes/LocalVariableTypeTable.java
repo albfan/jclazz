@@ -1,15 +1,15 @@
 package ru.andrew.jclazz.core.attributes;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.constants.CONSTANT_Utf8;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public class LocalVariableTypeTable extends AttributeInfo
-{
-    class LocalSignedVariable
-    {
+public class LocalVariableTypeTable extends AttributeInfo {
+    class LocalSignedVariable {
         int start_pc;
         int length;
         CONSTANT_Utf8 name;
@@ -19,19 +19,16 @@ public class LocalVariableTypeTable extends AttributeInfo
 
     private LocalSignedVariable[] local_variable_type_table;
 
-    public LocalVariableTypeTable(CONSTANT_Utf8 attributeName, Clazz clazz)
-    {
+    public LocalVariableTypeTable(CONSTANT_Utf8 attributeName, Clazz clazz) {
         super(attributeName, clazz);
     }
 
-    public void load(ClazzInputStream cis) throws IOException, ClazzException
-    {
+    public void load(ClazzInputStream cis) throws IOException, ClazzException {
         attributeLength = (int) cis.readU4();
 
         int local_variable_table_type_length = cis.readU2();
         local_variable_type_table = new LocalSignedVariable[local_variable_table_type_length];
-        for (int i = 0; i < local_variable_table_type_length; i++)
-        {
+        for (int i = 0; i < local_variable_table_type_length; i++) {
             local_variable_type_table[i] = new LocalSignedVariable();
             local_variable_type_table[i].start_pc = cis.readU2();
             local_variable_type_table[i].length = cis.readU2();
@@ -43,12 +40,10 @@ public class LocalVariableTypeTable extends AttributeInfo
         }
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         cos.writeU4(attributeLength);
         cos.writeU2(local_variable_type_table.length);
-        for (int i = 0; i < local_variable_type_table.length; i++)
-        {
+        for (int i = 0; i < local_variable_type_table.length; i++) {
             cos.writeU2(local_variable_type_table[i].start_pc);
             cos.writeU2(local_variable_type_table[i].length);
             cos.writeU2(local_variable_type_table[i].name.getIndex());
@@ -57,17 +52,14 @@ public class LocalVariableTypeTable extends AttributeInfo
         }
     }
 
-    public LocalSignedVariable[] getLocalSignedVariablesTable()
-    {
+    public LocalSignedVariable[] getLocalSignedVariablesTable() {
         return local_variable_type_table;
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuffer sb = new StringBuffer(ATTR);
         sb.append("LocalVariableTypeTable: \n");
-        for (int i = 0; i < local_variable_type_table.length; i++)
-        {
+        for (int i = 0; i < local_variable_type_table.length; i++) {
             LocalSignedVariable lsv = local_variable_type_table[i];
             sb.append(INDENT).append(lsv.start_pc).append("+").append(lsv.length).append(": ");
             sb.append(lsv.name.getString()).append(" (sign=").append(lsv.signature.getString()).append("), ").append(lsv.index);

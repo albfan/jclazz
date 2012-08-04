@@ -1,34 +1,29 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.FieldDescriptor;
+import ru.andrew.jclazz.core.MethodInfo;
+import ru.andrew.jclazz.core.attributes.Code;
 
 /**
  * Opcodes: 172 - 177<BR>
  * Parameters: no<BR>
  * Operand stack: return(177): no change; others: value => <BR>
  */
-public class Return extends Operation
-{
+public class Return extends Operation {
     private String retType;
 
-    public Return(int opcode, long start_byte, Code code)
-    {
+    public Return(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         FieldDescriptor returnType = code.getMethod().getDescriptor().getReturnType();
-        if (MethodInfo.INIT_METHOD.equals(code.getMethod().getName()))
-        {
+        if (MethodInfo.INIT_METHOD.equals(code.getMethod().getName())) {
             retType = "<init>";
-        }
-        else
-        {
+        } else {
             retType = returnType.getBaseType();
         }
     }
 
-    public String getReturnType()
-    {
+    public String getReturnType() {
         return retType;
     }
 }

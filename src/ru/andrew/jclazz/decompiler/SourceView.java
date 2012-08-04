@@ -1,12 +1,13 @@
 package ru.andrew.jclazz.decompiler;
 
-import java.io.*;
-import java.util.*;
 import ru.andrew.jclazz.decompiler.engine.LocalVariable;
 import ru.andrew.jclazz.decompiler.engine.LocalVariable.LVView;
 
-public abstract class SourceView
-{
+import java.io.*;
+import java.util.Iterator;
+import java.util.List;
+
+public abstract class SourceView {
     protected static final String NL = System.getProperty("line.separator");
 
     private ByteArrayOutputStream baos;
@@ -17,91 +18,65 @@ public abstract class SourceView
     private String source;
     protected List view;
 
-    protected SourceView()
-    {
+    protected SourceView() {
         baos = new ByteArrayOutputStream();
-        try
-        {
+        try {
             pw = new PrintWriter(new OutputStreamWriter(baos, "UTF-16"));
-        }
-        catch (UnsupportedEncodingException ex)
-        {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
 
     protected abstract void parse();
 
-    protected void loadSource()
-    {
+    protected void loadSource() {
         parse();
         flush();
-        try
-        {
+        try {
             source = baos.toString("UTF-16");
-        }
-        catch (UnsupportedEncodingException ex)
-        {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
         close();
     }
 
-    protected void print(String str)
-    {
-        if (view != null)
-        {
+    protected void print(String str) {
+        if (view != null) {
             view.add(str);
-        }
-        else
-        {
+        } else {
             pw.print(str);
         }
     }
 
-    protected void printView(Object obj)
-    {
+    protected void printView(Object obj) {
         view.add(obj);
     }
 
-    protected void println(String str)
-    {
-        if (view != null)
-        {
+    protected void println(String str) {
+        if (view != null) {
             view.add(str + NL);
-        }
-        else
-        {
+        } else {
             pw.println(str);
         }
     }
 
-    protected void flush()
-    {
+    protected void flush() {
         pw.flush();
     }
 
-    protected void clearAll()
-    {
-        if (view != null)
-        {
+    protected void clearAll() {
+        if (view != null) {
             view = null;
-        }
-        else
-        {
+        } else {
             flush();
             baos.reset();
         }
     }
 
-    protected void close()
-    {
-        try
-        {
+    protected void close() {
+        try {
             baos.close();
-        }
-        catch (IOException ioe)
-        {
+        } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
         pw.close();
@@ -109,20 +84,15 @@ public abstract class SourceView
 
     // Useful methods
 
-    public void setIndent(String indent)
-    {
+    public void setIndent(String indent) {
         this.indent = indent;
     }
 
-    public String getSource()
-    {
+    public String getSource() {
         String src;
-        if (view != null)
-        {
+        if (view != null) {
             src = getSourceByView();
-        }
-        else
-        {
+        } else {
             src = source;
         }
 
@@ -131,18 +101,13 @@ public abstract class SourceView
         return src;
     }
 
-    private String getSourceByView()
-    {
+    private String getSourceByView() {
         StringBuffer sb = new StringBuffer();
-        for (Iterator it = view.iterator(); it.hasNext();)
-        {
+        for (Iterator it = view.iterator(); it.hasNext(); ) {
             Object item = it.next();
-            if (item instanceof String)
-            {
+            if (item instanceof String) {
                 sb.append(item);
-            }
-            else if (item instanceof LocalVariable.LVView)
-            {
+            } else if (item instanceof LocalVariable.LVView) {
                 LocalVariable.LVView lvView = (LVView) item;
 
                 // Hack
@@ -157,8 +122,7 @@ public abstract class SourceView
 
     public abstract ClazzSourceView getClazzView();
 
-    protected String importClass(String clazz)
-    {
+    protected String importClass(String clazz) {
         return ImportManager.getInstance().importClass(clazz, getClazzView());
     }
 }

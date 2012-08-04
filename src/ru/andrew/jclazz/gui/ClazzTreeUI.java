@@ -1,18 +1,16 @@
 package ru.andrew.jclazz.gui;
 
-import ru.andrew.jclazz.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.gui.nodes.ClazzNode;
 
-import javax.swing.tree.*;
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.gui.nodes.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 
-public class ClazzTreeUI
-{
+public class ClazzTreeUI {
     private Clazz clazz;
     private DefaultTreeModel model;
 
-    public ClazzTreeUI(Clazz clazz)
-    {
+    public ClazzTreeUI(Clazz clazz) {
         this.clazz = clazz;
 
         ClazzTreeNode root = new ClazzNode(clazz);
@@ -20,8 +18,7 @@ public class ClazzTreeUI
         model = new DefaultTreeModel(root);
     }
 
-    public TreeModel getTreeModel()
-    {
+    public TreeModel getTreeModel() {
         return model;
     }
 }

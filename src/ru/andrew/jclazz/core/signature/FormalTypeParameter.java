@@ -1,28 +1,26 @@
 package ru.andrew.jclazz.core.signature;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 FormalTypeParameter:
    Identifier : FieldTypeSignature   (:FieldTypeSignature)*
                 classbound, optional interfacebounds
  */
-public class FormalTypeParameter
-{
+public class FormalTypeParameter {
     private String identifier;
     private FieldTypeSignature classBound;
     private FieldTypeSignature[] intfBounds;
 
-    private FormalTypeParameter(String identifier, FieldTypeSignature classBound, List intfBounds)
-    {
+    private FormalTypeParameter(String identifier, FieldTypeSignature classBound, List intfBounds) {
         this.identifier = identifier;
         this.classBound = classBound;
         this.intfBounds = new FieldTypeSignature[intfBounds.size()];
         intfBounds.toArray(this.intfBounds);
     }
 
-    public static FormalTypeParameter parse(StringBuffer sign)
-    {
+    public static FormalTypeParameter parse(StringBuffer sign) {
         int ind = sign.indexOf(":");
         String id = sign.substring(0, ind);
         sign.delete(0, ind);
@@ -36,8 +34,7 @@ public class FormalTypeParameter
 
         // Loading interface bounds
         List intBounds = new ArrayList();
-        while (sign.charAt(0) == ':')
-        {
+        while (sign.charAt(0) == ':') {
             sign.deleteCharAt(0);
             intBounds.add(FieldTypeSignature.parse(sign));
         }
@@ -45,18 +42,15 @@ public class FormalTypeParameter
         return new FormalTypeParameter(id, clBound, intBounds);
     }
 
-    public String getName()
-    {
+    public String getName() {
         return identifier;
     }
 
-    public FieldTypeSignature getClassBound()
-    {
+    public FieldTypeSignature getClassBound() {
         return classBound;
     }
 
-    public FieldTypeSignature[] getInterfaceBounds()
-    {
+    public FieldTypeSignature[] getInterfaceBounds() {
         return intfBounds;
     }
 }

@@ -6,7 +6,7 @@ import java.util.jar.JarFile;
 
 /**
  * Implementacion para ficheros contenidos en un jar
- * User: alberto
+ * User: nenopera
  * Date: 16/01/12
  * Time: 3:58
  */
@@ -17,12 +17,7 @@ public class JarInputStreamBuilder implements InputStreamBuilder {
         this.jarFile = jarFile;
     }
 
-    public InputStream getInputStream(String className) throws Exception {
-        try {
-            return jarFile.getInputStream(jarFile.getJarEntry(className));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public InputStream getInputStream(String className) throws IOException {
+        return jarFile.getInputStream(jarFile.getJarEntry(className));
     }
 }

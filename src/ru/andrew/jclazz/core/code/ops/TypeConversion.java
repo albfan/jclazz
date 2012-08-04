@@ -1,25 +1,22 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.code.*;
+import ru.andrew.jclazz.core.attributes.Code;
+import ru.andrew.jclazz.core.code.Opcode;
 
 /**
  * Opcodes: 133 - 147<BR>
  * Parameters: no<BR>
  * Operand stack: value => value<BR>
  */
-public class TypeConversion extends PushOperation
-{
+public class TypeConversion extends PushOperation {
     private String castType;
 
-    public TypeConversion(int opcode, long start_byte, Code code)
-    {
+    public TypeConversion(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         String mnemonic = Opcode.getOpcode(opcode).getMnemonic();
         char endChar = mnemonic.charAt(mnemonic.length() - 1);
-        switch (endChar)
-        {
+        switch (endChar) {
             case 'd':
                 castType = "double";
                 break;
@@ -46,8 +43,7 @@ public class TypeConversion extends PushOperation
         }
     }
 
-    public String getCastType()
-    {
+    public String getCastType() {
         return castType;
     }
 }

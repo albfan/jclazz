@@ -1,41 +1,37 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.*;
-import ru.andrew.jclazz.core.code.ops.*;
+import ru.andrew.jclazz.core.code.ops.NewArray;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * View of {@link NewArray}.
  */
-public class NewArrayView extends OperationView
-{
+public class NewArrayView extends OperationView {
     private OperationView count;
     private List initVariables = new ArrayList();
 
-    public NewArrayView(Operation operation, MethodSourceView methodView)
-    {
+    public NewArrayView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public void addInitVariable(OperationView pushVar)
-    {
+    public void addInitVariable(OperationView pushVar) {
         initVariables.add(pushVar);
     }
 
-    public String source()
-    {
+    public String source() {
         StringBuffer sb = new StringBuffer();
         sb.append("new ").append(alias(((NewArray) operation).getNewArrayType())).append("[");
         if (initVariables.isEmpty()) sb.append(count);
         sb.append("]");
-        if (!initVariables.isEmpty())
-        {
+        if (!initVariables.isEmpty()) {
             sb.append("{");
-            for (Iterator it = initVariables.iterator(); it.hasNext();)
-            {
+            for (Iterator it = initVariables.iterator(); it.hasNext(); ) {
                 sb.append(it.next());
                 if (it.hasNext()) sb.append(", ");
             }
@@ -44,30 +40,25 @@ public class NewArrayView extends OperationView
         return sb.toString();
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return ((NewArray) operation).getNewArrayType() + "[]";
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
         //OperationView prev = block.removePriorPushOperation();
         //count = prev.source();
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
         count = context.pop();
         context.push(this);
     }
 
-    protected void buildView()
-    {
+    protected void buildView() {
         String type = alias(((NewArray) operation).getNewArrayType());
         int ind0 = type.indexOf('[');
         String arrType = null;
-        if (ind0 >= 0)
-        {
+        if (ind0 >= 0) {
             arrType = type.substring(ind0);
             type = type.substring(0, ind0);
         }
@@ -78,11 +69,9 @@ public class NewArrayView extends OperationView
         items.add("]");
         if (arrType != null) items.add(arrType);
 
-        if (!initVariables.isEmpty())
-        {
+        if (!initVariables.isEmpty()) {
             items.add("{");
-            for (Iterator it = initVariables.iterator(); it.hasNext();)
-            {
+            for (Iterator it = initVariables.iterator(); it.hasNext(); ) {
                 items.add(it.next());
                 if (it.hasNext()) items.add(", ");
             }
@@ -93,8 +82,7 @@ public class NewArrayView extends OperationView
         view = items.toArray(view);
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

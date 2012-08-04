@@ -1,30 +1,28 @@
 package ru.andrew.jclazz.core.constants;
 
-import ru.andrew.jclazz.core.io.*;
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
+import ru.andrew.jclazz.core.io.ClazzInputStream;
+import ru.andrew.jclazz.core.io.ClazzOutputStream;
 
-import java.io.*;
+import java.io.IOException;
 
-public class CONSTANT_String extends CONSTANT
-{
+public class CONSTANT_String extends CONSTANT {
     private int string_index;
     private CONSTANT_Utf8 utf8;
     private boolean loaded = false;
 
     private String string;
 
-    protected CONSTANT_String(int num, int tag, Clazz clazz)
-    {
+    protected CONSTANT_String(int num, int tag, Clazz clazz) {
         super(num, tag, clazz);
     }
 
-    public void load(ClazzInputStream cis) throws IOException
-    {
+    public void load(ClazzInputStream cis) throws IOException {
         string_index = cis.readU2();
     }
 
-    public void update() throws ClazzException
-    {
+    public void update() throws ClazzException {
         if (loaded) return;
 
         loaded = true;
@@ -33,14 +31,11 @@ public class CONSTANT_String extends CONSTANT
         string = escape(utf8.getString());
     }
 
-    private String escape(String str)
-    {
+    private String escape(String str) {
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < str.length(); i++)
-        {
+        for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
-            switch(ch)
-            {
+            switch (ch) {
                 case '\b':
                     sb.append("\\b");
                     break;
@@ -72,18 +67,15 @@ public class CONSTANT_String extends CONSTANT
         return sb.toString();
     }
 
-    public String getType()
-    {
+    public String getType() {
         return "java.lang.String";
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return "\"" + string + "\"";
     }
 
-    public void store(ClazzOutputStream cos) throws IOException
-    {
+    public void store(ClazzOutputStream cos) throws IOException {
         super.store(cos);
 
         cos.writeU2(utf8.getIndex());

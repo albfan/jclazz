@@ -1,47 +1,41 @@
 package ru.andrew.jclazz.decompiler;
 
-import ru.andrew.jclazz.core.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.MethodInfo;
+import ru.andrew.jclazz.core.constants.CONSTANT_Class;
 
-import java.io.*;
-import java.util.*;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
-public class AnonymousClazzSourceView extends ClazzSourceView
-{
+public class AnonymousClazzSourceView extends ClazzSourceView {
     private Map innerMapping;
     private Map outerMapping;
     private int inParamsCount = 0;
-    
-    public AnonymousClazzSourceView(Clazz clazz, ClazzSourceView outerClazz)
-    {
+
+    public AnonymousClazzSourceView(Clazz clazz, ClazzSourceView outerClazz) {
         super(clazz, outerClazz);
     }
 
-    protected void loadSource()
-    {
+    protected void loadSource() {
     }
 
-    protected void printPackageAndImports()
-    {
+    protected void printPackageAndImports() {
         // Print nothing for anonymous class
     }
 
-    protected void printClassSignature(PrintWriter pw)
-    {
+    protected void printClassSignature(PrintWriter pw) {
         // Do nothing
     }
 
-    protected void printMethod(PrintWriter pw, MethodSourceView msv)
-    {
+    protected void printMethod(PrintWriter pw, MethodSourceView msv) {
         if (msv.getMethod().isInit()) return;
 
         super.printMethod(pw, msv);
     }
 
-    protected MethodSourceView createMethodView(MethodInfo method)
-    {
-        if (method.isInit())
-        {
+    protected MethodSourceView createMethodView(MethodInfo method) {
+        if (method.isInit()) {
             MethodSourceView msv = new AnonymousInitMethodView(method, this);
             msv.setIndent("    ");
             return msv;
@@ -50,56 +44,44 @@ public class AnonymousClazzSourceView extends ClazzSourceView
         return super.createMethodView(method);
     }
 
-    public void putInnerMapping(String inner, int lvNum)
-    {
-        if (innerMapping == null)
-        {
+    public void putInnerMapping(String inner, int lvNum) {
+        if (innerMapping == null) {
             innerMapping = new HashMap();
         }
         innerMapping.put(inner, new Integer(lvNum));
     }
 
-    public void putOuterMapping(int paramNum, String lvName)
-    {
-        if (outerMapping == null)
-        {
+    public void putOuterMapping(int paramNum, String lvName) {
+        if (outerMapping == null) {
             outerMapping = new HashMap();
         }
         outerMapping.put(new Integer(paramNum), lvName);
     }
 
-    public void setInParamCount(int count)
-    {
+    public void setInParamCount(int count) {
         inParamsCount = count;
     }
 
-    public int getInParamsCount()
-    {
+    public int getInParamsCount() {
         return inParamsCount;
     }
 
-    public String getOuterClassParam(String fieldName)
-    {
+    public String getOuterClassParam(String fieldName) {
         if (innerMapping == null || outerMapping == null) return null;
         Integer lvNum = (Integer) innerMapping.get(fieldName);
         return (String) outerMapping.get(lvNum);
     }
 
-    public String getAnonymousSuperClassFQN()
-    {
+    public String getAnonymousSuperClassFQN() {
         CONSTANT_Class[] intfs = clazz.getInterfaces();
-        if (intfs != null && intfs.length > 0)
-        {
+        if (intfs != null && intfs.length > 0) {
             return intfs[0].getFullyQualifiedName();
-        }
-        else
-        {
+        } else {
             return clazz.getSuperClassInfo().getFullyQualifiedName();
         }
     }
 
-    public String getSource()
-    {
+    public String getSource() {
         super.loadSource();
         return NL + super.getSource();
     }

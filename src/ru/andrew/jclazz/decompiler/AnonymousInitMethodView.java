@@ -1,7 +1,5 @@
 package ru.andrew.jclazz.decompiler;
 
-import java.util.*;
-
 import ru.andrew.jclazz.core.MethodInfo;
 import ru.andrew.jclazz.decompiler.engine.CodeItem;
 import ru.andrew.jclazz.decompiler.engine.blocks.Block;
@@ -9,6 +7,9 @@ import ru.andrew.jclazz.decompiler.engine.ops.InvokeView;
 import ru.andrew.jclazz.decompiler.engine.ops.PushVariableView;
 import ru.andrew.jclazz.decompiler.engine.ops.PutFieldView;
 import ru.andrew.jclazz.decompiler.engine.ops.ReturnView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnonymousInitMethodView extends MethodSourceView {
     public AnonymousInitMethodView(MethodInfo methodInfo, ClazzSourceView clazzView) {

@@ -1,19 +1,17 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
-import ru.andrew.jclazz.core.constants.*;
+import ru.andrew.jclazz.core.attributes.Code;
+import ru.andrew.jclazz.core.constants.CONSTANT_Class;
 
 /**
  * Opcodes: 187<BR>
  * Parameters: class(2)<BR>
  * Operand stack: => objectref<BR>
  */
-public class New extends PushOperation
-{
+public class New extends PushOperation {
     private String clazzName;
 
-    public New(int opcode, long start_byte, Code code)
-    {
+    public New(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         int _newindex = (params[0] << 8) | params[1];
@@ -21,13 +19,11 @@ public class New extends PushOperation
         clazzName = cl_new_info.getFullyQualifiedName();
     }
 
-    public String getNewType()
-    {
+    public String getNewType() {
         return clazzName;
     }
 
-    public String asString()
-    {
+    public String asString() {
         return start_byte + " " + opcode.getMnemonic() + " " + clazzName;
     }
 }

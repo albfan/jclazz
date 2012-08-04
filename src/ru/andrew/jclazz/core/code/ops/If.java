@@ -1,6 +1,6 @@
 package ru.andrew.jclazz.core.code.ops;
 
-import ru.andrew.jclazz.core.attributes.*;
+import ru.andrew.jclazz.core.attributes.Code;
 
 /**
  * Opcodes: 153 - 166, 198, 199<BR>
@@ -9,12 +9,10 @@ import ru.andrew.jclazz.core.attributes.*;
  * if[non]null(198, 199), if[cond](153-158): value => <BR>
  * if_[a,i]cmp[cond](159-166): value1, value2 => <BR>
  */
-public class If extends Operation
-{
+public class If extends Operation {
     private long targetOperation;
 
-    public If(int opcode, long start_byte, Code code)
-    {
+    public If(int opcode, long start_byte, Code code) {
         super(opcode, start_byte, code);
 
         long offset = (params[0] << 8) | params[1];
@@ -22,18 +20,15 @@ public class If extends Operation
         targetOperation = start_byte + offset;
     }
 
-    public long getTargetOperation()
-    {
+    public long getTargetOperation() {
         return targetOperation;
     }
 
-    public boolean isForwardBranch()
-    {
+    public boolean isForwardBranch() {
         return targetOperation > start_byte;
     }
 
-    public String asString()
-    {
+    public String asString() {
         return start_byte + " " + opcode.getMnemonic() + " " + targetOperation;
     }
 }

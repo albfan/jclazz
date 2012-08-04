@@ -4,13 +4,11 @@ import ru.andrew.jclazz.decompiler.MethodSourceView;
 import ru.andrew.jclazz.decompiler.engine.LocalVariable;
 import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class FakePopView extends OperationView
-{
+public class FakePopView extends OperationView {
     private LocalVariable lvar;
     private String fakeValue;
 
-    public FakePopView(MethodSourceView methodView, LocalVariable lvar, String fakeValue)
-    {
+    public FakePopView(MethodSourceView methodView, LocalVariable lvar, String fakeValue) {
         super(null, methodView);
 
         this.lvar = lvar;
@@ -19,13 +17,11 @@ public class FakePopView extends OperationView
         view = new Object[]{lvar.getView(), " = ", fakeValue};
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         return null;
     }
 
-    public String source()
-    {
+    public String source() {
         /*
         String src;
         if (!lvar.isPrinted())
@@ -44,27 +40,22 @@ public class FakePopView extends OperationView
         return null;
     }
 
-    public void analyze(Block block)
-    {
+    public void analyze(Block block) {
     }
 
-    public void analyze2(Block block)
-    {
+    public void analyze2(Block block) {
     }
 
-    public int getOpcode()
-    {
+    public int getOpcode() {
         return 58;  // astore
     }
 
-    public long getStartByte()
-    {
+    public long getStartByte() {
         // TODO may be incorrect
         return -1;
     }
 
-    public boolean isPush()
-    {
+    public boolean isPush() {
         return false;
     }
 }

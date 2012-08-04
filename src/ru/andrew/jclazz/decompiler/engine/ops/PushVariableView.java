@@ -1,46 +1,39 @@
 package ru.andrew.jclazz.decompiler.engine.ops;
 
-import ru.andrew.jclazz.core.code.ops.*;
-import ru.andrew.jclazz.decompiler.engine.blocks.*;
-import ru.andrew.jclazz.decompiler.engine.*;
-import ru.andrew.jclazz.decompiler.*;
+import ru.andrew.jclazz.core.code.ops.Operation;
+import ru.andrew.jclazz.core.code.ops.PushVariable;
+import ru.andrew.jclazz.decompiler.MethodSourceView;
+import ru.andrew.jclazz.decompiler.engine.LocalVariable;
+import ru.andrew.jclazz.decompiler.engine.blocks.Block;
 
-public class PushVariableView extends OperationView
-{
+public class PushVariableView extends OperationView {
     private LocalVariable lvar;
 
-    public PushVariableView(Operation operation, MethodSourceView methodView)
-    {
+    public PushVariableView(Operation operation, MethodSourceView methodView) {
         super(operation, methodView);
     }
 
-    public String getPushType()
-    {
+    public String getPushType() {
         lvar.ensure((int) getStartByte());
-        if (LocalVariable.UNKNOWN_TYPE.equals(lvar.getType()))
-        {
+        if (LocalVariable.UNKNOWN_TYPE.equals(lvar.getType())) {
             lvar.renewType("java.lang.Object");
         }
         return lvar.getType();
     }
 
-    public LocalVariable getLocalVariable()
-    {
+    public LocalVariable getLocalVariable() {
         return lvar;
     }
 
-    public String source()
-    {
+    public String source() {
         /*
         return getLVName(lvar);
          */
         return null;
     }
 
-    public void analyze(Block block)
-    {
-        if (getOpcode() >= 21 && getOpcode() <= 45)
-        {
+    public void analyze(Block block) {
+        if (getOpcode() >= 21 && getOpcode() <= 45) {
             String suffix = "";
             char mn = operation.getOpcode().getMnemonic().charAt(0);
             if (mn == 'f') suffix = "float";
@@ -52,10 +45,8 @@ public class PushVariableView extends OperationView
         }
     }
 
-    public void analyze2(Block block)
-    {
-        if (getOpcode() >= 21 && getOpcode() <= 45)
-        {
+    public void analyze2(Block block) {
+        if (getOpcode() >= 21 && getOpcode() <= 45) {
             String suffix = "";
             char mn = operation.getOpcode().getMnemonic().charAt(0);
             if (mn == 'f') suffix = "float";
@@ -71,8 +62,7 @@ public class PushVariableView extends OperationView
         }
     }
 
-    public boolean isPrintable()
-    {
+    public boolean isPrintable() {
         return false;
     }
 }

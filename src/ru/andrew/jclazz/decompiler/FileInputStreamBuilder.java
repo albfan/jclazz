@@ -6,10 +6,9 @@ import java.io.InputStream;
 
 /**
  * Implementacion para ficheros compilados sin empaquetar
- * User: alberto
+ * User: nenopera
  * Date: 16/01/12
  * Time: 3:56
- *
  */
 public class FileInputStreamBuilder implements InputStreamBuilder {
     public InputStream getInputStream(String className) throws FileNotFoundException {

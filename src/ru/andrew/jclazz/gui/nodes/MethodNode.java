@@ -2,13 +2,10 @@ package ru.andrew.jclazz.gui.nodes;
 
 import ru.andrew.jclazz.core.MethodInfo;
 import ru.andrew.jclazz.core.attributes.AttributeInfo;
-import ru.andrew.jclazz.core.constants.CONSTANT_Class;
 import ru.andrew.jclazz.gui.ClazzTreeNode;
 
-public class MethodNode extends ClazzTreeNode
-{
-    public MethodNode(MethodInfo methodInfo)
-    {
+public class MethodNode extends ClazzTreeNode {
+    public MethodNode(MethodInfo methodInfo) {
         super(methodInfo.getName(), methodInfo, "");
 
         StringBuffer sb = new StringBuffer("<html>");
@@ -50,10 +47,8 @@ public class MethodNode extends ClazzTreeNode
         description = sb.toString();
 
         AttributeInfo[] attrs = methodInfo.getAttributes();
-        if (attrs != null)
-        {
-            for (int i = 0; i < attrs.length; i++)
-            {
+        if (attrs != null) {
+            for (int i = 0; i < attrs.length; i++) {
                 ClazzTreeNode attrNode = createAttribtueNode(attrs[i]);
                 this.add(attrNode);
             }

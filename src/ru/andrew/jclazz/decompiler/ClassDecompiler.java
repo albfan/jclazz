@@ -1,27 +1,26 @@
 package ru.andrew.jclazz.decompiler;
 
-import ru.andrew.jclazz.core.*;
+import ru.andrew.jclazz.core.Clazz;
+import ru.andrew.jclazz.core.ClazzException;
 
-import java.util.*;
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.Map;
 
-public final class ClassDecompiler
-{
-    public static String generateJavaFile(String in, Map params) throws ClazzException, IOException
-    {
-        Clazz clazz = new Clazz(in);
-        ClazzSourceView csv = ClazzSourceViewFactory.getFileClazzSourceView(clazz);
+public final class ClassDecompiler {
+    public static String generateJavaFile(String in, Map params) throws ClazzException, IOException {
+        Clazz clazz = new Clazz(in, new FileInputStreamBuilder());
+        ClazzSourceView csv = ClazzSourceViewFactory.getClazzSourceView(clazz);
         csv.setDecompileParameters(params);
 
         String outFile;
         outFile = clazz.getFileName();
         outFile = outFile.substring(0, outFile.lastIndexOf('.') + 1);
-        if (csv.getDecompileParameter(Params.EXTENSION) != null)
-        {
+        if (csv.getDecompileParameter(Params.EXTENSION) != null) {
             outFile += csv.getDecompileParameter(Params.EXTENSION);
-        }
-        else
-        {
+        } else {
             outFile += "jav_";
         }
 
@@ -33,11 +32,9 @@ public final class ClassDecompiler
         return outFile;
     }
 
-    public static void main(String[] args) throws ClazzException, IOException
-    {
-        if ( (args.length == 0) ||
-             (args.length == 1 && Params.HELP.equals(args[0])) )
-        {
+    public static void main(String[] args) throws ClazzException, IOException {
+        if ((args.length == 0) ||
+                (args.length == 1 && Params.HELP.equals(args[0]))) {
             if (args.length == 0) System.out.println("No input file specified!");
             System.out.println("USAGE:\n" +
                     "Decomp [OPTIONS...] classfile\n" +
@@ -54,8 +51,7 @@ public final class ClassDecompiler
         ClassDecompiler.generateJavaFile(classFile, params);
     }
 
-    public static String getVersion()
-    {
+    public static String getVersion() {
         return "1.2";
     }
 }
