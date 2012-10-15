@@ -4,7 +4,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 
-class ClazzTreeNodeCellRenderer extends DefaultTreeCellRenderer {
+public class ClazzTreeNodeCellRenderer extends DefaultTreeCellRenderer {
     public ClazzTreeNodeCellRenderer() {
         super();
     }

@@ -75,8 +75,8 @@ public class ClazzNode extends ClazzTreeNode {
 
         description = sb.toString();
 
-        loadTree(clazz);
         builder = new FileInputStreamBuilder();
+        loadTree(clazz);
     }
 
     private void loadTree(Clazz clazz) {
